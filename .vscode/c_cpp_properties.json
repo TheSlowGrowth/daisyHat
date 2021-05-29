@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "name": "default",
+            "intelliSenseMode": "gcc-x86",
+            "compileCommands": "${workspaceRoot}/build/compile_commands.json"
+        }
+    ],
+    "version": 4
+}

@@ -25,7 +25,7 @@ namespace daisyhat
 
     /** Start the logging session. Optionally wait for terminal connection before proceeding.
     */
-    void StartLog(bool wait_for_pc = false)
+    inline void StartLog(bool wait_for_pc = false)
     {
         Log::StartLog(wait_for_pc);
     }

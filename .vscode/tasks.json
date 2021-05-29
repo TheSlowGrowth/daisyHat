@@ -4,14 +4,44 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "configure examples",
             "type": "shell",
-            "command": "make",
+            "command": "cmake",
             "args": [
-                "LIBDAISY_DIR=../../../EurorackReverb/firmware/lib/libDaisy"
+                "-D",
+                "TOOLCHAIN_PREFIX=\\\"C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update\\\"",
+                "-D",
+                "CMAKE_TOOLCHAIN_FILE=\\\"../../EurorackReverb/firmware/lib/libDaisy/cmake/toolchains/stm32h750xx.cmake\\\"",
+                "-D",
+                "LIBDAISY_DIR=\\\"../../EurorackReverb/firmware/lib/libDaisy\\\"",
+                "-S",
+                "examples",
+                "-B",
+                "build",
+                "-D",
+                "CMAKE_EXPORT_COMPILE_COMMANDS=1",
+                "-G",
+                "\\\"Unix Makefiles\\\""
             ],
             "options": {
-                "cwd": "${workspaceRoot}/device/libDaisyHat"
+                "cwd": "${workspaceRoot}"
+            },
+            "windows": {
+                "command": "cmake.exe"
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "build examples",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
             },
             "group": "build",
             "problemMatcher": [
@@ -19,7 +49,7 @@
             ]
         },
         {
-            "label": "clean",
+            "label": "clean examples",
             "type": "shell",
             "command": "make",
             "args": [

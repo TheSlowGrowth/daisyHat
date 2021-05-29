@@ -1,5 +1,4 @@
-#pragma once
-#include <daisy.h>
+#include "stringConversions.h"
 
 const char* ToString(bool value)
 {
