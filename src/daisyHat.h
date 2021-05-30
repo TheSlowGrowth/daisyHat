@@ -1,10 +1,10 @@
 #pragma once
-#include <daisy.h>
+#include <daisy_seed.h>
 #include "logOut.h"
 #include "testFunctions.h"
 
 namespace daisyhat
 {
-    void StartTest(const char* testName);
+    void StartTest(daisy::DaisySeed& seed, const char* testName);
     void FinishTest();
 } // namespace daisyhat

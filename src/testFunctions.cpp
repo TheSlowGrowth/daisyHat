@@ -1,15 +1,20 @@
 #include "testFunctions.h"
 #include "logOut.h"
 
-extern int numFailedAssertions;
+namespace daisyhat
+{
+    extern int numFailedAssertions;
+}
 
 namespace daisyhat::internal
 {
-    bool Assert(bool result, const char* message)
+    bool Assert(bool result, const char* failureMessage)
     {
         if (!result)
-            numFailedAssertions++;
-        PrintLine(message);
+        {
+            daisyhat::numFailedAssertions++;
+            PrintLine(failureMessage);
+        }
         return result;
     }
 } // namespace daisyhat::internal

@@ -1,5 +1,5 @@
 daisyhat_add_test(
-    NAME test1
+    NAME test2
     SOURCES 
         main.cpp
 )

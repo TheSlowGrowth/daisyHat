@@ -33,6 +33,37 @@
             "problemMatcher": []
         },
         {
+            "label": "configure examples (debug)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-D",
+                "TOOLCHAIN_PREFIX=\\\"C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update\\\"",
+                "-D",
+                "CMAKE_TOOLCHAIN_FILE=\\\"../../EurorackReverb/firmware/lib/libDaisy/cmake/toolchains/stm32h750xx.cmake\\\"",
+                "-D",
+                "LIBDAISY_DIR=\\\"../../EurorackReverb/firmware/lib/libDaisy\\\"",
+                "-D",
+                "CMAKE_BUILD_TYPE=Debug",
+                "-S",
+                "examples",
+                "-B",
+                "build",
+                "-D",
+                "CMAKE_EXPORT_COMPILE_COMMANDS=1",
+                "-G",
+                "\\\"Unix Makefiles\\\""
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "windows": {
+                "command": "cmake.exe"
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
             "label": "build examples",
             "type": "shell",
             "command": "cmake",
@@ -47,6 +78,19 @@
             "problemMatcher": [
                 "$gcc"
             ]
+        },
+        {
+            "label": "run examples",
+            "type": "shell",
+            "command": "ctest",
+            "args": [
+                "--output-on-failure"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}/build"
+            },
+            "group": "build",
+            "problemMatcher": []
         },
         {
             "label": "clean examples",

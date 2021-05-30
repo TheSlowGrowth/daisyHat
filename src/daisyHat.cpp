@@ -1,20 +1,26 @@
 #include "daisyHat.h"
+#include <daisy_seed.h>
 
 namespace daisyhat
 {
     int numFailedAssertions = 0;
     uint32_t startTime = 0;
+    daisy::DaisySeed* seed;
 
-    void StartTest(const char* testName)
+    void StartTest(daisy::DaisySeed& _seed, const char* testName)
     {
+        startTime = daisy::System::GetNow();
+        numFailedAssertions = 0;
+
+        seed = &_seed;
+        seed->SetLed(true);
         StartLog(true);
+        daisy::System::Delay(3000);
+
         PrintLine("=== Starting Test ===");
         Print("> Name: ");
         PrintLine(testName);
         PrintLine("===");
-
-        startTime = daisy::System::GetNow();
-        numFailedAssertions = 0;
     }
 
     void FinishTest()
@@ -31,7 +37,11 @@ namespace daisyhat
             PrintLine("> testResult = SUCCESS");
         PrintLine("===");
 
+        seed->SetLed(false);
+
         // trap processor in endless loop.
-        while(1) {};
+        while (1)
+        {
+        };
     }
 } // namespace daisyhat

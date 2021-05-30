@@ -1,4 +1,4 @@
-function(add_daisyhat_test)
+function(daisyhat_add_test)
     set(oneValueArgs NAME)
     set(multiValueArgs SOURCES)
     cmake_parse_arguments(PARSED_ARGS "" "${oneValueArgs}"
@@ -51,4 +51,10 @@ function(add_daisyhat_test)
         ${PARSED_ARGS_NAME}.bin
         COMMENT "Generating binary image"
     VERBATIM)
+
+    add_test(
+        NAME ${PARSED_ARGS_NAME}
+        COMMAND 
+            ${PYTHON_EXECUTABLE} ${DAISYHAT_PYTHON_MODULE_DIR}/daisyHat/defaultTestRunner.py --elf $<TARGET_FILE:${PARSED_ARGS_NAME}>
+    )
 endfunction()
