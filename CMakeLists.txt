@@ -5,7 +5,7 @@ set(TARGET daisyHat)
 set(DAISYHAT_PYTHON_MODULE_DIR ${CMAKE_CURRENT_LIST_DIR}/python CACHE STRING "Path to the daisyHat python module directory")
 
 include(CTest)
-find_package(PythonInterp 3.9 REQUIRED)
+find_package(PythonInterp 3.8.5 REQUIRED)
 
 add_library(${TARGET} 
     src/daisyHat.cpp
