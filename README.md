@@ -11,6 +11,7 @@ daisyHat provides a bring-your-own-test platform to run automated tests on the E
 ## Project structure
 
 - `cmake/` contains cmake functions
+- `docs/` contains documentation and guides
 - `examples/` contains a usage example with two tests (one succeeds, one fails)
 - `python/` contains the python library for the host computer
 - `src/` contains C++ library for the device firmware
