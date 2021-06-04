@@ -12,11 +12,13 @@ daisyHat provides a bring-your-own-test platform to run automated tests on the E
 
 - `cmake/` contains cmake functions
 - `docs/` contains documentation and guides
+- `docker/` contains files to build the github action runner docker image
 - `examples/` contains a usage example with two tests (one succeeds, one fails)
-- `python/` contains the python library for the host computer
+- `python/` contains the python library for the host computer / test runner
+- `scripts/` contains scripts for setup and run a daisyHat test runner
 - `src/` contains C++ library for the device firmware
 
-## Getting started
+## Getting started (running tests locally)
 
 1. Setup your toolchain with _CMake_, _make_, _gcc-arm-none-eabi_, _openocd_ and _Python3.9_
 2. Create a new repository for your tests
@@ -31,6 +33,9 @@ daisyHat provides a bring-your-own-test platform to run automated tests on the E
 9. Connect the Daisy Seed via USB
 10. Connect your JTAG programmer
 11. Run the tests: `ctest --output-on-failure`
+
+## Getting started (running tests in github CI)
+[See `docs/github-actions-runner-setup-public-repos.md`]
 
 ## Work in Progress
 
