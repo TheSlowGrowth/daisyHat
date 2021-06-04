@@ -1,9 +1,9 @@
 FROM ubuntu:20.04
 
 ENV RUNNER_VERSION=2.278.0
-ENV RUNNER_PLATFORM=x64
-ENV GCC_ARM_NONE_EABI_DOWNLOAD=https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2/gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2
-ENV GCC_ARM_NONE_EABI_FILE=gcc-arm-none-eabi-9-2020-q2-update-x86_64-linux.tar.bz2
+ENV RUNNER_PLATFORM=arm64
+ENV GCC_ARM_NONE_EABI_DOWNLOAD=https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2/gcc-arm-none-eabi-9-2020-q2-update-aarch64-linux.tar.bz2
+ENV GCC_ARM_NONE_EABI_FILE=gcc-arm-none-eabi-9-2020-q2-update-aarch64-linux.tar.bz2
 ENV GCC_ARM_NONE_EABI_PATH=/home/actions/dev/gcc-arm-none-eabi-9-2020-q2-update
 
 RUN useradd -m actions \
@@ -27,7 +27,7 @@ RUN cd /home/actions && mkdir dev && cd dev && wget ${GCC_ARM_NONE_EABI_DOWNLOAD
 
 # install the github actions runner
 RUN cd /home/actions && mkdir actions-runner && cd actions-runner \
-    && wget https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
+    && wget https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-${RUNNER_PLATFORM}-${RUNNER_VERSION}.tar.gz \
     && tar xzf ./actions-runner-linux-${RUNNER_PLATFORM}-${RUNNER_VERSION}.tar.gz
 WORKDIR /home/actions/actions-runner
 RUN chown -R actions ~actions && /home/actions/actions-runner/bin/installdependencies.sh
