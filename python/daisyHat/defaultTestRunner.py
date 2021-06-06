@@ -13,8 +13,8 @@ if __name__ == "__main__":
 
     firmwareElfFile = args.elf
     # TODO: Read config from the --dev config file
-    progDevice = "interface/ftdi/olimex-arm-usb-tiny-h.cfg"
-    serialDevice = "COM4"
+    progDevice = "interface/stlink.cfg"
+    serialDevice = "/dev/serial/by-id/usb-Electrosmith_Daisy_Seed_Built_In_346135793139-if00"
     upload.uploadFirmware(firmwareElfFile, progDevice)
 
     result = RunTest.runTest(serialDevice)

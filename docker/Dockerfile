@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:21.04
 
 ENV RUNNER_VERSION=2.278.0
 ENV RUNNER_PLATFORM=arm64
@@ -32,7 +32,17 @@ RUN cd /home/actions && mkdir actions-runner && cd actions-runner \
 WORKDIR /home/actions/actions-runner
 RUN chown -R actions ~actions && /home/actions/actions-runner/bin/installdependencies.sh
 
+# install udev and setup udev rules for ST-Link V3
+RUN apt-get update && apt-get install -y udev usbutils
+RUN mkdir -p /etc/udev/rules.d/
+COPY 49-stlinkv3.rules /etc/udev/rules.d/49-stlinkv3.rules
+RUN service udev restart || 
+
+# install tini
+RUN apt-get update && apt-get install tini
+
 USER actions
 
 COPY entrypoint.sh .
-ENTRYPOINT ["./entrypoint.sh"]
+# use tini to be able to stop the container gracefully
+ENTRYPOINT ["tini", "-v", "--", "./entrypoint.sh"]

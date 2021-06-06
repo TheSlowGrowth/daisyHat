@@ -30,6 +30,6 @@ token=$(curl -s -XPOST \
     --replace
 
 if [ -z ${REGISTER_ONLY} ]; then
-    ./run.sh --once
+    exec /bin/bash run.sh --once
     cleanup
 fi

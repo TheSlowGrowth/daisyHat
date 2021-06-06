@@ -6,7 +6,7 @@ import Tools
 
 def runTest(serialDevice):
 
-    sanitizedDevice = re.sub(r'[^A-Za-z0-9\\\/]', '', serialDevice)
+    sanitizedDevice = re.sub(r'[^A-Za-z0-9_\-\\\/]', '', serialDevice)
 
     Tools.printSmallHeadline("Running test on device '" + sanitizedDevice + "' ...")
 

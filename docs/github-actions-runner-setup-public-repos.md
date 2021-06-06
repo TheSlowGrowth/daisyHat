@@ -37,11 +37,19 @@ Run these commands on the Raspberry Pi that's going to be the host computer for 
     - Log out and back in (or restart) for the changes to be applied, then verify that you can run docker without sudo: `docker run hello-world`
 - Start the docker service automatically after booting: `sudo systemctl enable docker.service` and `sudo systemctl enable containerd.service`
 
+### Setup the environment variables
+daisyhat scripts need certain environment variables to be defined.
+- Download `setupEnvVars.sh` from the scripts/ folder; move it to `~/daisyHat/setupEnvVars.sh` and edit the contents to your liking
+- Load the contents for the rest of the current session: `source $HOME/daisyHat/setupEnvVars.sh`
+- Automatically include these environment variables in the next shell session: `echo "source $HOME/daisyHat/setupEnvVars.sh" >> $HOME/.bash_profile`
+
 ### Test the docker image
 
-- Get `Dockerfile` and `entrypoint.sh` (TODO)
-- Run `docker build -t actions-image .`
-- Start the image to test it: `docker run -ti --rm actions-image ${OWNER} ${REPO} ${PAT} my-runner`
+- Download `Dockerfile` and `entrypoint.sh` from the docker/ folder; move it to `~/daisyHat/docker`
+- Download `startDockerContainer.sh` from the scripts/ folder; move it to `~/daisyHat/`
+- Run `cd ~/daisyHat/docker && docker build -t ${DAISYHAT_DOCKER_IMAGE} .`
+- Start the image to test it: `~/daisyHat/startDockerContainer.sh`
+- Github runner should come online
 - Quit the image with Ctrl-C
 
 ### Install the python web API that launches the docker container on request

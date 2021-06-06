@@ -21,9 +21,13 @@ def uploadFirmware(firmwareElfFile,
     print("command:")
     print(command)
 
-    result = subprocess.run(command,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT,
-                            timeout=20,
-                            check=True)
-    print(result.stdout.decode("utf-8"))
+    try:
+        result = subprocess.run(command,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT,
+                                timeout=20,
+                                check=True)
+        print(result.stdout.decode("utf-8"))
+    except subprocess.CalledProcessError as e:
+        print(e.output.decode("utf-8"))
+        raise e
