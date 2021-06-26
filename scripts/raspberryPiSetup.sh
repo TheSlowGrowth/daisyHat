@@ -136,11 +136,6 @@ fi
 sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
 
-# Install flask and pip3
-# TODO: Is this still needed?
-sudo apt install -y python3-pip < "/dev/null"
-pip3 install flask
-
 ##############################################################
 # build the docker image
 ##############################################################

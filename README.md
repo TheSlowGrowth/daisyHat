@@ -128,7 +128,6 @@ Core concepts:
 3. Download and execute the setup script (see [here](docs/github-actions-runner-setup-public-repos.md)) 
 4. Connect the Pi to each Daisy Seed board via USB
 5. Connect the Pi to each Daisy Seed board via an STLinkv3 JTAG programmer
-6. Reboot the Rapsberry Pi
 
 Detailed instructions can be found [here](docs/github-actions-runner-setup-public-repos.md). Please note that the setup is currently not fully automated and still work in progress.
 
