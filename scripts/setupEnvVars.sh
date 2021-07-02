@@ -9,3 +9,4 @@ export DAISYHAT_RUNNER_NAME="daisyhat-runner" # desired name of the github actio
 # export DAISYHAT_REPO="daisyhat_Examples" # the github repo to connect to
 # export DAISYHAT_USER="TheSlowGrowth" # the github username
 # export DAISYHAT_GH_TOKEN="" # the github access token that allows to add/remove runners
+
