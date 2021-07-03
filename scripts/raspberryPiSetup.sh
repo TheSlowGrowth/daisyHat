@@ -43,17 +43,17 @@ echo "Extracted device major number: ${USB_DEVICE_MAJOR}"
 
 # write these to setupEnvVars.sh
 echo "# Appended from rapsberryPiSetup.sh:" >> setupEnvVars.sh
-echo "DAISYHAT_REPO=${REPO_NAME}" >> setupEnvVars.sh
-echo "DAISYHAT_USER=${USER_NAME}" >> setupEnvVars.sh
-echo "DAISYHAT_GH_TOKEN=${GH_TOKEN}" >> setupEnvVars.sh
-echo "DAISYHAT_DEVICE_MAJOR=${USB_DEVICE_MAJOR}" >> setupEnvVars.sh
+echo "export DAISYHAT_REPO=${REPO_NAME}" >> setupEnvVars.sh
+echo "export DAISYHAT_USER=${USER_NAME}" >> setupEnvVars.sh
+echo "export DAISYHAT_GH_TOKEN=${GH_TOKEN}" >> setupEnvVars.sh
+echo "export DAISYHAT_DEVICE_MAJOR=${USB_DEVICE_MAJOR}" >> setupEnvVars.sh
 # source this file now
 source ./setupEnvVars.sh
 # include this file with every bash session
-echo "# include daisyhat environment if it exists" >> $HOME/.bash_profile
-echo "if [ -f $HOME/daisyHat/setupEnvVars.sh ]; then" >> $HOME/.bash_profile
-echo "    source $HOME/daisyHat/setupEnvVars.sh" >> $HOME/.bash_profile
-echo "fi" >> $HOME/.bash_profile
+echo "# include daisyhat environment if it exists" >> $HOME/.profile
+echo "if [ -f $HOME/daisyHat/setupEnvVars.sh ]; then" >> $HOME/.profile
+echo "    source $HOME/daisyHat/setupEnvVars.sh" >> $HOME/.profile
+echo "fi" >> $HOME/.profile
 
 # download the docker startup script
 curl -OL https://github.com/TheSlowGrowth/daisyHat/raw/develop/scripts/startDockerContainer.sh

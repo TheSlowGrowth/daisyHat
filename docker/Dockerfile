@@ -36,7 +36,7 @@ RUN chown -R actions ~actions && /home/actions/actions-runner/bin/installdepende
 RUN apt-get update && apt-get install -y udev usbutils
 RUN mkdir -p /etc/udev/rules.d/
 COPY 49-stlinkv3.rules /etc/udev/rules.d/49-stlinkv3.rules
-RUN service udev restart || 
+RUN service udev restart
 
 # install tini
 RUN apt-get update && apt-get install tini
