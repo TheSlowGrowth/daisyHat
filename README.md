@@ -95,7 +95,8 @@ daisyhat_add_test(
 # Getting started
 
 Core concepts:
-- tests live in a git repository where daisyHat and libDaisy are available (e.g. as submodules)
+- Tests live in a git repository where daisyHat and libDaisy are available (e.g. as submodules)
+- A project-level `daisyHat.config.json` file describes the hardware setup
 - Depending on the test scenario, each test consists of one or multiple firmware images and additional host-side test execution scripts, if needed
 - All tests are accumulated into a CMake project so that building and running is entirely handled by CMake
 - GitHub actions integration is realised with an ephemeral test runner based on a docker image that can easily be deployed to a Raspberry Pi and is safe to use for public repositories
