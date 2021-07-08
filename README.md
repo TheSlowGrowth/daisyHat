@@ -83,9 +83,10 @@ int main()
 CMakeLists.txt
 ```
 # register the test with CMake.
-# This will upload the test to a Daisy Seed and collect the results over USB-Serial
+# This will upload the test to a Daisy Seed with name "Alice" and collect the results over USB-Serial
 daisyhat_add_test(
     NAME test1
+    SEED Alice
     SOURCES 
         firmware.cpp
 )

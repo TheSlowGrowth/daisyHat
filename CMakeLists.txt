@@ -1,4 +1,4 @@
-project(libDaisyHaT)
+project(libDaisyHat)
 cmake_minimum_required(VERSION 3.19)
 
 set(TARGET daisyHat)
@@ -46,4 +46,6 @@ target_compile_options(${TARGET}
     $<$<COMPILE_LANGUAGE:CXX>:-Wno-register>
 )
 
+include(cmake/daisyhat_add_custom_test.cmake)
+include(cmake/daisyhat_add_firmware.cmake)
 include(cmake/daisyhat_add_test.cmake)
