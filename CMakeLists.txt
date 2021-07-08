@@ -8,8 +8,12 @@ include(CTest)
 find_package(PythonInterp 3.8.5 REQUIRED)
 
 add_library(${TARGET} 
-    src/daisyHat.cpp
     src/daisyHat.h
+    src/daisyHat.cpp
+    src/SerialComms.h
+    src/SerialComms.cpp
+    src/Signals.h
+    src/Signals.cpp
     src/testFunctions.cpp
     src/stringConversions.cpp
 )

@@ -1,5 +1,5 @@
 #include "testFunctions.h"
-#include "logOut.h"
+#include "daisyHat.h"
 
 namespace daisyhat
 {

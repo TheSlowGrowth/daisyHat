@@ -29,7 +29,6 @@ namespace daisyhat
                 detailMsg.Append(" = '");
                 detailMsg.Append(::ToString(b));
                 detailMsg.Append("'");
-                // print output as individual snippets to work around the 128 character TX buffer
                 Assert(result, failureMessageStart, detailMsg);
             }
 
@@ -42,10 +41,10 @@ namespace daisyhat
 
 #define EXPECT_STREQ(a, b) daisyhat::internal::AssertWithStringOutput(a, b, strcmp(a, b) == 0, "FAILURE: Expected " #a " == " #b " at " __FILE__ ":" TOSTRING(__LINE__), #a, #b)
 #define EXPECT_EQ(a, b) daisyhat::internal::AssertWithStringOutput(a, b, a == b, "FAILURE: Expected " #a " == " #b " at " __FILE__ ":" TOSTRING(__LINE__), #a, #b)
-#define EXPECT_GT(a, b) daisyhat::i::AssertWithStringOutput(a, b, a > b, "FAILURE: Expected " #a " > " #b " at " __FILE__ ":" TOSTRING(__LINE__), #a, #b)
-#define EXPECT_GE(a, b) daisyhat::i::AssertWithStringOutput(a, b, a >= b, "FAILURE: Expected " #a " >= " #b " at " __FILE__ ":" TOSTRING(__LINE__), #a, #b)
-#define EXPECT_LT(a, b) daisyhat::iinternal::AssertWithStringOutput(a, b, a < b, "FAILURE: Expected " #a " < " #b " at " __FILE__ ":" TOSTRING(__LINE__), #a, #b)
-#define EXPECT_LE(a, b) daisyhat::iinternal::AssertWithStringOutput(a, b, a <= b, "FAILURE: Expected " #a " <= " #b " at " __FILE__ ":" TOSTRING(__LINE__), #a, #b)
-#define EXPECT_TRUE(condition) daisyhat::iinternal::Assert(condition, "FAILURE: Expected " #condition " == true at " __FILE__ ":" TOSTRING(__LINE__))
-#define EXPECT_FALSE(condition) daisyhat::iinternal::Assert(!condition, "FAILURE: Expected " #condition " == false at " __FILE__ ":" TOSTRING(__LINE__))
+#define EXPECT_GT(a, b) daisyhat::internal::AssertWithStringOutput(a, b, a > b, "FAILURE: Expected " #a " > " #b " at " __FILE__ ":" TOSTRING(__LINE__), #a, #b)
+#define EXPECT_GE(a, b) daisyhat::internal::AssertWithStringOutput(a, b, a >= b, "FAILURE: Expected " #a " >= " #b " at " __FILE__ ":" TOSTRING(__LINE__), #a, #b)
+#define EXPECT_LT(a, b) daisyhat::internal::AssertWithStringOutput(a, b, a < b, "FAILURE: Expected " #a " < " #b " at " __FILE__ ":" TOSTRING(__LINE__), #a, #b)
+#define EXPECT_LE(a, b) daisyhat::internal::AssertWithStringOutput(a, b, a <= b, "FAILURE: Expected " #a " <= " #b " at " __FILE__ ":" TOSTRING(__LINE__), #a, #b)
+#define EXPECT_TRUE(condition) daisyhat::internal::Assert(condition, "FAILURE: Expected " #condition " == true at " __FILE__ ":" TOSTRING(__LINE__))
+#define EXPECT_FALSE(condition) daisyhat::internal::Assert(!condition, "FAILURE: Expected " #condition " == false at " __FILE__ ":" TOSTRING(__LINE__))
 } // namespace daisyhat
