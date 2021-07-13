@@ -12,12 +12,24 @@ daisy::FixedCapStr<128> ToString(float value)
     return str;
 }
 
-daisy::FixedCapStr<128> ToString(int value)
+template <typename IntType>
+daisy::FixedCapStr<128> ToStringImpl(IntType value)
 {
     daisy::FixedCapStr<128> str;
     str.AppendInt(value);
     return str;
 }
+
+daisy::FixedCapStr<128> ToString(unsigned int value) { return ToStringImpl(value); }
+daisy::FixedCapStr<128> ToString(int value) { return ToStringImpl(value); }
+daisy::FixedCapStr<128> ToString(uint8_t value) { return ToStringImpl(value); }
+daisy::FixedCapStr<128> ToString(int8_t value) { return ToStringImpl(value); }
+daisy::FixedCapStr<128> ToString(uint16_t value) { return ToStringImpl(value); }
+daisy::FixedCapStr<128> ToString(int16_t value) { return ToStringImpl(value); }
+daisy::FixedCapStr<128> ToString(uint32_t value) { return ToStringImpl(value); }
+daisy::FixedCapStr<128> ToString(int32_t value) { return ToStringImpl(value); }
+daisy::FixedCapStr<128> ToString(uint64_t value) { return ToStringImpl(value); }
+daisy::FixedCapStr<128> ToString(int64_t value) { return ToStringImpl(value); }
 
 const char ToString(char value)
 {

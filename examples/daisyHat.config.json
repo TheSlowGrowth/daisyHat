@@ -1,0 +1,8 @@
+{
+    "seeds": {
+        "Alice": {
+            "openOcdCfg": "interface/stlink.cfg",
+            "serialDevice": "/dev/serial/by-id/usb-Electrosmith_Daisy_Seed_Built_In_346135793139-if00"
+        }
+    }
+}

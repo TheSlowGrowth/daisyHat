@@ -1,4 +1,4 @@
-project(libDaisyHaT)
+project(libDaisyHat)
 cmake_minimum_required(VERSION 3.19)
 
 set(TARGET daisyHat)
@@ -8,8 +8,12 @@ include(CTest)
 find_package(PythonInterp 3.8.5 REQUIRED)
 
 add_library(${TARGET} 
-    src/daisyHat.cpp
     src/daisyHat.h
+    src/daisyHat.cpp
+    src/SerialComms.h
+    src/SerialComms.cpp
+    src/Signals.h
+    src/Signals.cpp
     src/testFunctions.cpp
     src/stringConversions.cpp
 )
@@ -42,4 +46,6 @@ target_compile_options(${TARGET}
     $<$<COMPILE_LANGUAGE:CXX>:-Wno-register>
 )
 
+include(cmake/daisyhat_add_custom_test.cmake)
+include(cmake/daisyhat_add_firmware.cmake)
 include(cmake/daisyhat_add_test.cmake)
