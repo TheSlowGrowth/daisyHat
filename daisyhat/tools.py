@@ -1,21 +1,23 @@
+from . import hostlog
+
 
 def print_big_headline(text):
-    print("")
-    print("#######################################################################")
-    print(text)
-    print("#######################################################################")
-    print("")
+    hostlog.log("")
+    hostlog.log("#######################################################################")
+    hostlog.log(text)
+    hostlog.log("#######################################################################")
+    hostlog.log("")
 
 
 def print_small_headline(text):
-    print("")
-    print("-----------------------------------------------------------------------")
-    print(text)
-    print("-----------------------------------------------------------------------")
-    print("")
+    hostlog.log("")
+    hostlog.log("-----------------------------------------------------------------------")
+    hostlog.log(text)
+    hostlog.log("-----------------------------------------------------------------------")
+    hostlog.log("")
 
 def print_warning(text):
-    print("WARNING: " + str(text))
+    hostlog.log("WARNING: " + str(text))
 
 def print_info(text):
-    print("INFO: " + str(text))
+    hostlog.log("INFO: " + str(text))

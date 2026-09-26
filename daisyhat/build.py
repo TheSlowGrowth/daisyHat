@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 
+from . import hostlog
 from .errors import DaisyHatError
 
 
@@ -28,7 +29,7 @@ def build_test(test_name, test_dir, libdaisy_dir, toolchain_prefix, daisyhat_dir
         "-DLIBDAISY_DIR=" + libdaisy_dir,
         "-DDAISYHAT_DIR=" + daisyhat_dir,
     ]
-    print(" ... configuring '{}'".format(test_name))
+    hostlog.log(" ... configuring '{}'".format(test_name))
     try:
         subprocess.run(configure, check=True)
     except subprocess.CalledProcessError:
@@ -37,7 +38,7 @@ def build_test(test_name, test_dir, libdaisy_dir, toolchain_prefix, daisyhat_dir
 
     parallel = parallel or os.cpu_count() or 1
     build = ["cmake", "--build", build_dir, "-j", str(parallel)]
-    print(" ... building '{}'".format(test_name))
+    hostlog.log(" ... building '{}'".format(test_name))
     try:
         subprocess.run(build, check=True)
     except subprocess.CalledProcessError:
@@ -50,5 +51,5 @@ def clean_test(test_name, test_dir):
     """ Removes the build directory (.build) of a test. """
     build_dir = os.path.join(test_dir, ".build")
     if os.path.isdir(build_dir):
-        print(" ... cleaning '{}'".format(test_name))
+        hostlog.log(" ... cleaning '{}'".format(test_name))
         shutil.rmtree(build_dir)

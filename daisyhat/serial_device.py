@@ -2,6 +2,9 @@ import serial
 import threading
 import time
 
+from . import hostlog
+
+
 class SerialDevice():
     _max_name_length = 0
 
@@ -23,7 +26,7 @@ class SerialDevice():
         self._rx_thread = threading.Thread(target=self._rx_handler, daemon=True)
         self._rx_thread.start()
 
-        print("SerialDevice: Connection created for " + name)
+        hostlog.log("SerialDevice: Connection created for " + name)
 
     def close(self):
         """ Closes the serial transport """
@@ -33,7 +36,7 @@ class SerialDevice():
             self._port.close()
         except Exception:
             pass
-        print("SerialDevice: Connection closed for " + self._name)
+        hostlog.log("SerialDevice: Connection closed for " + self._name)
 
     def get_entire_data_received(self):
         """ Returns the entire data that was received since the connection was opened """
@@ -62,6 +65,7 @@ class SerialDevice():
             raise TypeError("Expected a string")
         if len(identifier) < 1 or len(identifier) > 32:
             raise ValueError("Signal identifier must have 1..32 characters")
+        hostlog.log("HOST -> {}: Signal:{}".format(self._name, identifier))
         self.send_synchronous(str.encode("!!>> Signal:{}\n".format(identifier)))
 
     def was_signal_received(self, identifier):
@@ -120,7 +124,7 @@ class SerialDevice():
             # print the received line to the console
             decoded_line = line.decode().rstrip()
             aligned_device_name = self._name.rjust(SerialDevice._max_name_length)
-            print(f"{aligned_device_name} # {decoded_line}")
+            hostlog.log("{} # {}".format(aligned_device_name, decoded_line))
 
             # append the received line to the rx buffers
             with self._lock:

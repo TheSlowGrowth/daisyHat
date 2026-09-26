@@ -24,6 +24,7 @@ only reported as bare lines by Python's last-resort logging handler.
 import subprocess
 import time
 
+from . import hostlog
 from .errors import DaisyHatError
 
 
@@ -84,7 +85,7 @@ class PyOcdFlashBackend(FlashBackend):
                         "disconnect); replug the probe's USB cable and try again"
                         .format(elf_path, e)) from e
                 if attempt < self.MAX_ATTEMPTS:
-                    print("flash attempt {} failed ({}), retrying...".format(
+                    hostlog.log("flash attempt {} failed ({}), retrying...".format(
                         attempt, e))
                     time.sleep(1)
         raise DaisyHatError(
@@ -106,8 +107,8 @@ class OpenOcdFlashBackend(FlashBackend):
             "-f", "target/stm32h7x.cfg",
             "-c", 'program "{}" verify reset exit'.format(elf_path),
         ]
-        print("command:")
-        print(openocd_args)
+        hostlog.log("command:")
+        hostlog.log(str(openocd_args))
         result = subprocess.run(openocd_args)
         if result.returncode != 0:
             raise DaisyHatError(

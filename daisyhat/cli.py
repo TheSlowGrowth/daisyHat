@@ -11,6 +11,8 @@ import os
 import subprocess
 import sys
 
+from . import hostlog
+
 from . import build
 from . import discovery
 from . import envfile
@@ -53,10 +55,10 @@ def build_parser():
 
 
 def _print_tests(root, tests):
-    print("Tests in '{}':".format(os.path.join(root, "tests")))
+    hostlog.log("Tests in '{}':".format(os.path.join(root, "tests")))
     for name, test_dir in tests.items():
         images = [os.path.basename(p) for p in discovery.firmware_images(test_dir).values()]
-        print("  {}  ({})".format(name, ", ".join(images) if images else "no firmware image yet"))
+        hostlog.log("  {}  ({})".format(name, ", ".join(images) if images else "no firmware image yet"))
 
 
 def _require_env(name):
@@ -88,14 +90,14 @@ def cmd_build(args):
     libdaisy_dir, toolchain_prefix, daisyhat_dir = _prepare_build_env()
     for name, test_dir in tests.items():
         build.build_test(name, test_dir, libdaisy_dir, toolchain_prefix, daisyhat_dir)
-    print("Built {} test(s).".format(len(tests)))
+    hostlog.log("Built {} test(s).".format(len(tests)))
 
 
 def cmd_clean(args):
     tests = discovery.discover_tests(args.root)
     for name, test_dir in tests.items():
         build.clean_test(name, test_dir)
-    print("Cleaned {} test(s).".format(len(tests)))
+    hostlog.log("Cleaned {} test(s).".format(len(tests)))
 
 
 def cmd_test(args):
@@ -113,8 +115,8 @@ def cmd_test(args):
 
     results = dict()
     for name, test_dir in tests.items():
-        print()
-        print("========== test '{}' ==========".format(name))
+        hostlog.log("")
+        hostlog.log("========== test '{}' ==========".format(name))
         images = discovery.firmware_images(test_dir)
         try:
             results[name] = hooks.run_test(name, test_dir, images)
@@ -123,13 +125,13 @@ def cmd_test(args):
                 "test '{}' failed to execute (flashing or serial error, see output above)".format(
                     name))
 
-    print()
-    print("Summary:")
+    hostlog.log("")
+    hostlog.log("Summary:")
     all_passed = True
     for name in tests:
         passed = results[name]
         all_passed = all_passed and passed
-        print("  {}: {}".format(name, "PASSED" if passed else "FAILED"))
+        hostlog.log("  {}: {}".format(name, "PASSED" if passed else "FAILED"))
     sys.exit(0 if all_passed else 1)
 
 

@@ -16,6 +16,7 @@ import traceback
 from pathlib import Path
 
 from . import config_file
+from . import hostlog
 from .daisy_seed import DaisySeed
 from .tools import print_small_headline, print_warning
 from .errors import DaisyHatError
@@ -81,19 +82,19 @@ class DefaultTest:
                     ctx.test_name, ", ".join(ctx.images)))
         print_small_headline("Flashing firmware images")
         image = next(iter(ctx.images.values()))
-        print(" ... flashing to '{}': '{}'".format(ctx.default_seed_id, image))
+        hostlog.log(" ... flashing to '{}': '{}'".format(ctx.default_seed_id, image))
         self._seeds = [(ctx.default_seed_id, ctx.flash(image, ctx.default_seed_id))]
 
     def run(self, ctx):
         print_small_headline("Starting test execution")
         for seed_id, seed in self._seeds:
-            print(" ... '{}'".format(seed_id))
+            hostlog.log(" ... '{}'".format(seed_id))
             seed.start_test_execution()
         print_small_headline("Collecting test results")
         results = []
         for seed_id, seed in self._seeds:
             result = seed.await_test_result()
-            print(" ... '{}': {}".format(seed_id, "Passed" if result else "Failed"))
+            hostlog.log(" ... '{}': {}".format(seed_id, "Passed" if result else "Failed"))
             results.append(result)
         return all(results)
 
