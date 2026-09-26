@@ -28,6 +28,11 @@ namespace daisyhat
     void Print(const char* text);
     void PrintLine(const char* lineOfText);
 
+    // Checkpoint for host-side synchronization of multi-device tests:
+    // reports the checkpoint to the host and blocks until the host releases
+    // this checkpoint (cf. DaisySeed.halt_at_checkpoint / .release on the host).
+    void Checkpoint(const char* checkpointName);
+
     void FinishTest();
 
 } // namespace daisyhat

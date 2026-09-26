@@ -10,9 +10,14 @@ namespace daisyhat::signals
     /** Returns true if a host signal was received. */
     bool WasHostSignalReceived(const Identifier& signalToCheck);
 
-    /** Blocks until a host signal was received. If WasHostSignalReceived() 
+    /** Blocks until a host signal was received. If WasHostSignalReceived()
      *  returns true, this will return immediately. */
     void AwaitHostSignal(const Identifier& signalToAwait);
+
+    /** Blocks until a host signal was received. If WasHostSignalReceived()
+     *  returns true, this will return immediately. Clears the signal
+     *  from the registry before returning. */
+    void AwaitHostSignalAndClear(const Identifier& signalToAwait);
 
     /** Resets the state of a host signal so that WasHostSignalReceived() will now return false */
     void ResetHostSignal(const Identifier& signalToReset);
@@ -24,11 +29,11 @@ namespace daisyhat::signals
     {
         /** A signal sent from the host to start running the test. */
         static constexpr Identifier startTest = "start_test";
-    }
+    } // namespace ids::host_signals
 
-    namespace internal 
+    namespace internal
     {
         /** INTERNAL. Called to initialize the signalling code. */
         void Init(SerialComms& serialCommsInstance);
-    }
-}
+    } // namespace internal
+} // namespace daisyhat::signals

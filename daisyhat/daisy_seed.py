@@ -6,6 +6,18 @@ from . import config_file
 from . import flash
 
 
+class CheckpointHold:
+    """ Handle for a device that is held at a checkpoint, as returned by DaisySeed.halt_at_checkpoint """
+
+    def __init__(self, seed, name):
+        self._seed = seed
+        self._name = name
+
+    def release(self):
+        """ Lets the device continue from the checkpoint """
+        self._seed.serial_connection.send_signal("rel:" + self._name)
+
+
 class DaisySeed:
     """ Represents a Daisy Seed board and provides functions for test execution """
 
@@ -50,6 +62,16 @@ class DaisySeed:
         """
         self.serial_connection.await_signal("ready:" + self._identifier, timeout_ms)
         self.serial_connection.send_signal("start_test")
+
+    def halt_at_checkpoint(self, name, timeout_ms=10000):
+        """
+        Blocks until the device reaches the checkpoint with the given name and
+        holds it there (the device blocks at the checkpoint until released).
+        :param name: the checkpoint name, cf. daisyhat::Checkpoint on the device
+        :return: a CheckpointHold handle; call .release() to let the device continue
+        """
+        self.serial_connection.await_signal("cp:" + name, timeout_ms)
+        return CheckpointHold(self, name)
 
     def await_test_result(self, timeout_ms=10000):
         """

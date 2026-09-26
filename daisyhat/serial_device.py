@@ -28,8 +28,11 @@ class SerialDevice():
     def close(self):
         """ Closes the serial transport """
         self._should_thread_stop = True
-        self._rx_thread.join()
-        self._port.close()
+        self._rx_thread.join(timeout=5)
+        try:
+            self._port.close()
+        except Exception:
+            pass
         print("SerialDevice: Connection closed for " + self._name)
 
     def get_entire_data_received(self):
@@ -79,6 +82,7 @@ class SerialDevice():
             now = time.time() * 1000
             if timeout_ms > 0 and now - start_time_ms > timeout_ms:
                 raise Exception(f"Timeout waiting for signal '{identifier}' on device '{self._name}'")
+            time.sleep(0.01)
 
     def _open_serial_port(self, serial_device_path):
         num_attempts = 0
@@ -87,7 +91,9 @@ class SerialDevice():
         start_time_ms = time.time() * 1000
         while not handle:
             try:
-                handle = serial.Serial(serial_device_path, timeout=10)
+                # short read timeout: the reader thread checks the stop flag
+                # frequently, so close() stays responsive
+                handle = serial.Serial(serial_device_path, timeout=0.2)
             except serial.SerialException as e:
                 num_attempts = num_attempts + 1
                 now = time.time() * 1000
@@ -101,9 +107,15 @@ class SerialDevice():
 
     def _rx_handler(self):
         while not self._should_thread_stop:
-            line = self._port.readline()
+            try:
+                line = self._port.readline()
+            except Exception:
+                # port was closed (cf. close()) - stop reading
+                break
             if not line:
-                raise Exception("Timeout reading serial device: " + str(self._serial_device_path))
+                # read timeout: the device is legitimately silent
+                # (e.g. held at a checkpoint) - keep waiting
+                continue
 
             # print the received line to the console
             decoded_line = line.decode().rstrip()

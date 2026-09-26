@@ -10,14 +10,37 @@ namespace daisyhat::signals
 
     bool WasHostSignalReceived(const Identifier& signalToCheck)
     {
+        // compiler barrier so the polling loop cannot hoist this read
+        // out (the registry is written from the serial RX ISR)
+        __asm__ __volatile__("" : : : "memory");
         return signalRegistry.Contains(signalToCheck);
     }
 
     void AwaitHostSignal(const Identifier& signalToAwait)
     {
+        if (!WasHostSignalReceived(signalToAwait) && signalRegistry.IsFull())
+        {
+            serialCommsInstance->Transmit("ERROR: Signal registry full;"
+                                          " getting stuck waiting for signal\n");
+        }
+
         while (!WasHostSignalReceived(signalToAwait))
         {
         }
+    }
+
+    void AwaitHostSignalAndClear(const Identifier& signalToAwait)
+    {
+        if (!WasHostSignalReceived(signalToAwait) && signalRegistry.IsFull())
+        {
+            serialCommsInstance->Transmit("ERROR: Signal registry full;"
+                                          " getting stuck waiting for signal\n");
+        }
+
+        while (!WasHostSignalReceived(signalToAwait))
+        {
+        }
+        ResetHostSignal(signalToAwait);
     }
 
     void ResetHostSignal(const Identifier& signalToReset)
@@ -69,4 +92,4 @@ namespace daisyhat::signals
         serialCommsInstance = &_serialCommsInstance;
         serialCommsInstance->AddListener(&signalListener);
     }
-} // namespace daisyhat::signal
+} // namespace daisyhat::signals

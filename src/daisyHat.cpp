@@ -58,6 +58,21 @@ namespace daisyhat
         PrintLine("===");
     }
 
+    void Checkpoint(const char* checkpointName)
+    {
+        // report the checkpoint to the host, then block until the host
+        // releases this checkpoint (identifiers are limited to 32 chars, hence the short prefixes)
+        daisy::FixedCapStr<40> line;
+
+        line = "cp:";
+        line.Append(checkpointName);
+        signals::SendSignal(signals::Identifier(line));
+
+        line = "rel:";
+        line.Append(checkpointName);
+        signals::AwaitHostSignalAndClear(signals::Identifier(line));
+    }
+
     void Print(const char* text)
     {
         serialComms->Transmit(text);
