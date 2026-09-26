@@ -1,91 +1,95 @@
-# Types of daisyHat tests
+# Types of tests supported by daisyHat
 
-## Single/Multi Seed tests
+A test is a subdirectory of `tests/` (inside a test root) that contains a
+`CMakeLists.txt` making it a standalone CMake project. An optional
+`daisyHatTest.py` file next to it provides host-side orchestration hooks.
 
-- The test runs entirely one or more Daisy Seeds. There is no upper limit on the number of Seeds that are part of the test.
-- The results are collected from the Seeds. The test succeeds only of all of the Seeds report success.
-- This form of test is easy to setup with the CMake function `daisyhat_add_test()`
+The different kinds of tests are:
 
-### Examples
-tests/mySingleSeedTest/CMakeLists.txt
-```
-daisyhat_add_test(
-    NAME MyTestName
-    SEED SeedIdToExecuteOn
-    SOURCES 
-        main.cpp
-        util.cpp
-)
-```
+- Single Seed:
+  The test's CMake project registers exactly one firmware image. The default
+  flow (used when no `daisyHatTest.py` is present) flashes it to the suite's
+  default seed (the `defaultSeed` in the `daisyHat.config.json` at the test
+  root), starts the test execution there and collects the result.
 
-tests/myMultiSeedTest/CMakeLists.txt
-```
-daisyhat_add_test(
-    NAME MyTestName
-    SEED SeedIdForFirstFirmwareImage
-    SOURCES 
-        firmwareImage1/main.cpp
-        firmwareImage1/util.cpp
-    SEED SeedIdForSecondFirmwareImage
-    SOURCES 
-        firmwareImage2/main.cpp
-        firmwareImage2/util.cpp
-)
-```
+  ```cpp
+  // <test-root>/tests/mySeedTest/main.cpp
+  #include <daisy_seed.h>
+  #include <daisyHat.h>
+
+  daisy::DaisySeed seed;
+
+  int main() {
+      seed.Configure();
+      seed.Init();
+
+      daisyhat::Init(seed, "mySeedTest");
+
+      // <perform the test, using daisyhat::EXPECT_* macros>
+
+      daisyhat::FinishTest();
+
+      return 0;
+  }
+  ```
+
+- Multi Seed:
+  The test's CMake project registers one firmware image per seed. The
+  association of images and seeds is provided by a `daisyHatTest.py` file
+  (see below); with the default flow only one image is supported.
+
+- Custom (non-firmware) host tests:
+  A test directory whose CMake project registers no firmware image. Its
+  `daisyHatTest.py` performs host-side steps instead.
 
 ## Tests with a custom test runner
 
-- The test is orchestrated by a custom command/script on the test runner. It may involve one or more Daisy Seeds as needed.
-- Since the script has to be provided, this form of test is very flexible and can involve external measurement equipment or test fixtures.
-- The scripts return value determines if the tests failed or succeeded.
-- Seed firmwares are registered with the CMake function `daisyhat_add_firmware()`
-- The test itself is registered with the CMake function `daisyhat_add_custom_test()`
-- The path to the project-wide `daisyHat.config.json` is passed to the custom script via the command line arguments `--config <pathToConfigFile>`
+When the test directory contains a `daisyHatTest.py`, the CLI imports it and
+drives the `Test` class it defines, instead of using the default flow:
 
-### Example
-tests/myCustomTest/CMakeLists.txt
-```
-daisyhat_add_firmware(
-    NAME MyFirmwareBinaryName
-    SOURCES 
-        main.cpp
-        util.cpp
-)
-daisyhat_add_custom_test(
-    NAME MyTestName
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/myTestRunner.py --elf $<TARGET_FILE:MyFirmwareBinaryName>
-)
-```
-tests/myCustomTest/myTestRunner.py
 ```python
-import argparse
-import pyDaisyHat
+# <test-root>/tests/mySeedTest/daisyHatTest.py
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    # We pass this argument from CMake
-    parser.add_argument("--elf", action="store", type=str,
-                        help="The firmware image to flash")
-    # This argument is implicitly added by daisyhat_add_custom_test()
-    parser.add_argument("--config", action="store", type=str,
-                        help="The daisyHat config file")
-    args = parser.parse_args()
+class Test:
 
-    # read daisyHat config file from the provided path (e.g. daisyHat.config.json)
-    # or use the override (as provided with environment variable DAISYHAT_CONFIG_FILE_OVERRIDE)
-    pyDaisyHat.readConfigFile(args.config)
-    # create DaisySeed object to interact with the seed "Alice" (as configured in the config file)
-    seed = pyDaisyHat.DaisySeed("Alice")
-    # flash the firmware image
-    seed.uploadFirmwareElfAndStartSerial(args.elf)
+    def setup(self, ctx):
+        """Called before run(). Flash firmware here and set up fixtures."""
+        self.seed_a = ctx.flash(ctx.images["appA"], "Alice")
+        self.seed_b = ctx.flash(ctx.images["appB"], "Bob")
 
-    # you could setup a test fixture here
+    def run(self, ctx):
+        """Called after setup(). Return True if the test passed."""
+        self.seed_a.start_test_execution()
+        self.seed_b.start_test_execution()
+        return self.seed_a.await_test_result() and self.seed_b.await_test_result()
 
-    # start the test execution on the seed
-    seed.startTestExecution()
-    # wait for the test to complete
-    result = seed.awaitTestResult() 
-
-    # return the result to the test environment
-    sys.exit(0 if result == True else 1)
+    def teardown(self, ctx):
+        """Called after run() in all cases (even on failure)."""
+        pass
 ```
+
+`setup` and `teardown` are optional, `run` is required. If `run` raises an
+exception, the test fails. The context object `ctx` is provided by the CLI
+and contains everything the test needs:
+
+- `ctx.test_name` – the name of the test (its directory name)
+- `ctx.test_dir`, `ctx.build_dir` – the test directory and its `.build`
+  directory
+- `ctx.images` – the built firmware images, as a dict of image name to `.elf`
+  path (the image name is the filename without extension)
+- `ctx.seed_ids` – the identifiers of the configured seeds
+- `ctx.default_seed_id` – the suite's default seed (the `defaultSeed` from
+  the config file, or the single seed if there is only one)
+- `ctx.config` – the raw parsed `daisyHat.config.json` dict
+- `ctx.flash(image, seed_id)` – flash the `.elf` image to the given seed and
+  open its serial connection; returns the connected `DaisySeed`
+- `ctx.connect(seed_id)` – open the serial connection to the given seed
+  without flashing; returns the connected `DaisySeed`
+
+All serial connections opened through the context are closed automatically
+after the test, so `teardown` can use them but doesn't have to close them.
+
+The returned `DaisySeed` objects support everything the default flow uses:
+`start_test_execution()`, `await_test_result(timeout_ms)`,
+`send_signal(signal)`, `send_integer(value)`, `send_string(string)`, and so
+on (see `daisyhat.daisy_seed`).

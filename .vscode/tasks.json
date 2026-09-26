@@ -1,106 +1,38 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
+    // See https://code.visualstudio.com/docs/editor/tasks
+    // for the documentation about the tasks.json format.
+    //
+    // The tasks use the local python venv at .venv (gitignored).
+    // Create/update it with:
+    //   python3 -m venv .venv && .venv/bin/pip install -e .
+    //
+    // The workspace root .env file (gitignored, see .env.example) is loaded
+    // automatically, so the local seed config override applies here.
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "configure examples",
+            "label": "daisyhat: test (selftests)",
+            "detail": "Build and run the on-device assertion self-tests (requires the Daisy Seed and its debug probe from the local config)",
             "type": "shell",
-            "command": "cmake",
-            "args": [
-                "-D",
-                "TOOLCHAIN_PREFIX=\\\"C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update\\\"",
-                "-D",
-                "CMAKE_TOOLCHAIN_FILE=\\\"../../EurorackReverb/firmware/lib/libDaisy/cmake/toolchains/stm32h750xx.cmake\\\"",
-                "-D",
-                "LIBDAISY_DIR=\\\"../../EurorackReverb/firmware/lib/libDaisy\\\"",
-                "-S",
-                "examples",
-                "-B",
-                "build",
-                "-D",
-                "CMAKE_EXPORT_COMPILE_COMMANDS=1",
-                "-G",
-                "\\\"Unix Makefiles\\\""
-            ],
+            "command": "${workspaceFolder}/.venv/bin/daisyhat",
+            "args": ["test", "selftests"],
             "options": {
-                "cwd": "${workspaceRoot}"
+                "cwd": "${workspaceFolder}"
             },
-            "windows": {
-                "command": "cmake.exe"
+            "group": {
+                "kind": "build",
+                "isDefault": true
             },
-            "group": "build",
             "problemMatcher": []
         },
         {
-            "label": "configure examples (debug)",
+            "label": "daisyhat: clean (selftests)",
+            "detail": "Remove the build directories of the self-tests",
             "type": "shell",
-            "command": "cmake",
-            "args": [
-                "-D",
-                "TOOLCHAIN_PREFIX=\\\"C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update\\\"",
-                "-D",
-                "CMAKE_TOOLCHAIN_FILE=\\\"../../EurorackReverb/firmware/lib/libDaisy/cmake/toolchains/stm32h750xx.cmake\\\"",
-                "-D",
-                "LIBDAISY_DIR=\\\"../../EurorackReverb/firmware/lib/libDaisy\\\"",
-                "-D",
-                "CMAKE_BUILD_TYPE=Debug",
-                "-S",
-                "examples",
-                "-B",
-                "build",
-                "-D",
-                "CMAKE_EXPORT_COMPILE_COMMANDS=1",
-                "-G",
-                "\\\"Unix Makefiles\\\""
-            ],
+            "command": "${workspaceFolder}/.venv/bin/daisyhat",
+            "args": ["clean", "selftests"],
             "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "windows": {
-                "command": "cmake.exe"
-            },
-            "group": "build",
-            "problemMatcher": []
-        },
-        {
-            "label": "build examples",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "build"
-            ],
-            "options": {
-                "cwd": "${workspaceRoot}"
-            },
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "run examples",
-            "type": "shell",
-            "command": "ctest",
-            "args": [
-                "--output-on-failure"
-            ],
-            "options": {
-                "cwd": "${workspaceRoot}/build"
-            },
-            "group": "build",
-            "problemMatcher": []
-        },
-        {
-            "label": "clean examples",
-            "type": "shell",
-            "command": "make",
-            "args": [
-                "clean"
-            ],
-            "options": {
-                "cwd": "${workspaceRoot}/device/libDaisyHat"
+                "cwd": "${workspaceFolder}"
             },
             "group": "build",
             "problemMatcher": []

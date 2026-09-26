@@ -63,5 +63,5 @@ During the installation, several thing will be setup for you. The script will ..
     - Two additional rules execute scripts when new USB devices are plugged in. These script are also installed automatically. They will re-attach the new devices to a running docker container so that hot-plugging devices during the container execution is possible. This is required because the devices will constantly be unplugged and re-attached during the test execution.
 6. ... install Docker and add the user to the `docker` group (allowing the user to manage docker containers without root priviliges) and the `plugdev` group (allowing it raw access to USB devices)
 7. ... download `docker/Dockerfile` and `docker/entrypoint.sh` from this repo and build the final docker image that runs the github actions.
-    - The Docker image contains all tools required for daisyHat tests, e.g. CMake, gcc, make, python, openocd, etc.
+    - The Docker image contains all tools required for daisyHat tests, e.g. CMake, gcc, make, python, pyocd, etc.
     - Should your tests require additional software and tools, you can simply modify the Dockerfile and rebuild the container.

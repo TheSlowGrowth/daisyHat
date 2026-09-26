@@ -47,13 +47,36 @@
 
 **daisyHat** provides ...
 - a **device-side C++ library** that comes with assertion macros, flow control and other tooling to write tests on the hardware,
-- a **host-side python library** to upload device firmware images, collect test results and orchestrate tests that involve other hardware,
-- **CMake functions** and utilities to create a CMake project that contains multiple daisyHat tests which can be built and run with one command respectively,
+- a **host-side python package** (`daisyhat`) with a CLI to build the test firmware, upload firmware images to the hardware, collect test results and orchestrate the test run,
 - a **Docker image** that can be used to deploy ephemeral github actions runners that are safe to use on public repositories,
 - **setup scripts** to prepare and install this Docker image on a Raspberry Pi 4B and turn it into the heart of a automated hardware testbed for github repositories.
 
-**WOKR IN PROGRESS**
+**WORK IN PROGRESS**
 This project is in very early stages and not production ready. Don't expect everything to be plug-and-play yet. Please help out where you can!
+
+# Core concepts
+
+- Tests live in a directory (the **test root**), typically a git repository, that contains a `tests/` subdirectory and a `daisyHat.config.json` file describing the hardware setup
+- Each test is a subdirectory of `tests/` that contains a `CMakeLists.txt` making it a standalone CMake project
+- libDaisy and daisyHat are available to the test projects via the environment variables `LIBDAISY_DIR` and `DAISYHAT_DIR` (e.g. pointing at checkouts / submodules inside the repository)
+- The `daisyhat` python package builds each test with CMake and runs the firmware on the hardware
+- A test can optionally provide a `daisyHatTest.py` with host-side orchestration hooks (flash firmware to specific seeds, multi-firmware tests, host-only tests)
+- GitHub actions integration is realised with an ephemeral test runner based on a docker image that can easily be deployed to a Raspberry Pi and is safe to use for public repositories
+
+
+The layout of a test root:
+
+```
+<test-root>/
+├── daisyHat.config.json   # hardware setup (seed identifiers, ...)
+└── tests/
+    ├── test1/            # a test: standalone CMake project
+    │   ├── CMakeLists.txt
+    │   ├── daisyHatTest.py   # (optional) host-side orchestration hooks
+    │   └── main.cpp
+    └── test2/
+        └── ...
+```
 
 <!-- Example test -->
 # Example test
@@ -61,7 +84,25 @@ This project is in very early stages and not production ready. Don't expect ever
 The simplest test consists of a single firmware image that performs the entire test on a Daisy Seed.
 View [more complex example code here](examples/).
 
-firmware.cpp
+In this repository, `examples/` is a test root containing one test, `test1`.
+
+`examples/daisyHat.config.json` describes the hardware setup. The example defines one Daisy Seed with the identifier `Alice`:
+
+```json
+{
+    "version": 1,
+    "seeds": {
+        "Alice": {
+            "flash": {
+                "backend": "pyocd"
+            },
+            "serialDevice": "/dev/serial/by-id/usb-Electrosmith_Daisy_Seed_Built_In_346135793139-if00"
+        }
+    }
+}
+```
+
+`examples/tests/test1/main.cpp`:
 ```cpp
 #include <daisy_seed.h>
 #include <daisyHat.h>
@@ -80,54 +121,118 @@ int main()
     daisyhat::FinishTest();
 }
 ```
-CMakeLists.txt
+`examples/tests/test1/CMakeLists.txt`:
+```cmake
+cmake_minimum_required(VERSION 3.20)
+project (test1)
+
+# register the firmware with the libDaisy CMake firmware target
+set(FIRMWARE_NAME test1)
+set(FIRMWARE_SOURCES main.cpp)
+include(${LIBDAISY_DIR}/cmake/DaisyDefaultBuild.cmake)
+
+# link the daisyHat test library
+add_subdirectory(${DAISYHAT_DIR} daisyhat)
+target_link_libraries(${FIRMWARE_NAME} PRIVATE daisyHat)
 ```
-# register the test with CMake.
-# This will upload the test to a Daisy Seed with name "Alice" and collect the results over USB-Serial
-daisyhat_add_test(
-    NAME test1
-    SEED Alice
-    SOURCES 
-        firmware.cpp
-)
+
+Run the test from the test root's parent directory (here: the repository root, where the `.env` file is). The first argument is the path to the test root folder (`examples` here — for your own projects it is typically `.` for the repository root), the second argument names the test to run (omit it to run all discovered tests):
+
+```
+daisyhat test <path-to-test-root> [test_name ...]
+daisyhat test examples test1
+```
+
+Expected output (CMake and flashing output elided):
+
+```
+INFO: daisyHat config file path: examples/daisyHat.config.json
+ ... configuring 'test1'
+ ... building 'test1'
+
+========== test 'test1' ==========
+
+-----------------------------------------------------------------------
+Flashing firmware images
+-----------------------------------------------------------------------
+
+ ... flashing to 'Alice': 'examples/tests/test1/.build/test1.elf'
+<flashing progress output>
+
+-----------------------------------------------------------------------
+Starting test execution
+-----------------------------------------------------------------------
+
+ ... 'Alice'
+
+-----------------------------------------------------------------------
+Collecting test results
+-----------------------------------------------------------------------
+
+ ... 'Alice': Passed
+
+Summary:
+  test1: PASSED
+```
+
+A failing test prints `Failed` in the result collection and a non-zero exit code:
+
+```
+Summary:
+  test2: FAILED
 ```
 
 <!-- Getting Started -->
 # Getting started
 
-Core concepts:
-- Tests live in a git repository where daisyHat and libDaisy are available (e.g. as submodules)
-- A project-level `daisyHat.config.json` file describes the hardware setup
-- Depending on the test scenario, each test consists of one or multiple firmware images and additional host-side test execution scripts, if needed
-- All tests are accumulated into a CMake project so that building and running is entirely handled by CMake
-- GitHub actions integration is realised with an ephemeral test runner based on a docker image that can easily be deployed to a Raspberry Pi and is safe to use for public repositories
-
 ## Setting up a test project
 
 1. Create a new repository for your tests
-2. Add `libDaisy` as a submodule in the `lib/libDaisy` folder
-3. Add the **daisyHat** repo as a submodule in the `lib/daisyHat` folder 
-4. Add a `CMakeLists.txt` in the repository root that includes `lib/libDaisy` and `lib/daisyHat` as sub directories (with `add_subdirectory()`) (you can copy and edit [this file](examples/CMakeLists.txt))
+2. Add `libDaisy` as a submodule (e.g. in `lib/libDaisy`)
+3. Add the **daisyHat** repo as a submodule (e.g. in `lib/daisyHat`)
+4. Add a `daisyHat.config.json` at the repository root that describes your hardware setup (you can copy and edit [this file](examples/daisyHat.config.json))
 5. For each test, create a new directory `tests/<testName>` and add to it
-    1. The C++ source code for your test firmware (take a look [here](examples/test1/main.cpp))
-    2. A `CMakeLists.txt` file that registers a test firmware with the `daisyhat_add_test()` function (you can copy [this file](examples/test1/CMakeLists.txt))
-6. Include each of the test directories in the root `CMakeLists.txt`
-7. _Future addition_: Describe the hardware configuration of your test setup in the `daisyHat.config.json` at the project root
+    1. The C++ source code for your test firmware (take a look [here](examples/tests/test1/main.cpp))
+    2. A `CMakeLists.txt` file (you can copy and edit [this file](examples/tests/test1/CMakeLists.txt))
+6. Create a `.env` file at the repository root with the paths your tests need to build (see [.env.example](.env.example))
 
 ## Running the tests locally
 
-1. Setup your toolchain with _CMake_, _make_, _gcc-arm-none-eabi_, _openocd_ and _Python3.9_
-2. Connect to each Daisy Seed board via USB
-3. Connect to each Daisy Seed board via an STLinkv3 JTAG programmer
-4. Configure the project: `cmake -D TOOLCHAIN_PREFIX=<path-to-gcc-arm-none-eabi> -D CMAKE_TOOLCHAIN_FILE="lib/libDaisy/cmake/toolchains/stm32h750xx.cmake" -S . -B build -G "Unix Makefiles"`
-5. Build libDaisy, daisyHat and the tests: `cmake --build build`
-6. Run the tests: `ctest --output-on-failure`
+1. Setup your toolchain: _CMake_, _make_, _gcc-arm-none-eabi_ (as `TOOLCHAIN_PREFIX`) and _Python3_ with pyocd (_openocd_ is only required if your config uses the `openocd` flash backend)
+2. Install the daisyHat python package: `pip install <path-to-daisyHat>`
+3. Connect each Daisy Seed board via USB and via an STLink JTAG programmer
+4. Build and run the tests: `daisyhat test <path-to-test-root>`
+   - `daisyhat build <path-to-test-root>` builds without running
+   - `daisyhat clean <path-to-test-root>` removes the test build directories
+   - `daisyhat test <path-to-test-root> --list` shows the discovered tests
 
-## Running tests automatically via github ations
+## Developing daisyHat locally
+
+How to work on the daisyHat repository itself, testing it against real hardware with the self-tests in [`selftests/`](selftests/).
+
+1. Create a local python venv and install the package:
+   ```sh
+   python3 -m venv .venv
+   .venv/bin/pip install -e .
+   ```
+2. Create a `.env` file at the repository root from [.env.example](.env.example) and fill in `LIBDAISY_DIR` and `TOOLCHAIN_PREFIX` (the CLI loads `.env` from the working directory automatically; values already set in the environment are not overridden)
+3. Create a local config file `selftests/daisyHat.config.local.json` (gitignored) describing your local hardware — machine specific serial device paths and probe IDs — and point `DAISYHAT_CONFIG_FILE_OVERRIDE` in your `.env` file to it
+4. Find the ID of your USB debug probe: `.venv/bin/pyocd list` shows all connected pyOCD-compatible probes with their unique IDs
+5. Find the serial port path of the Daisy Seed: `ls /dev/cu.*` on macOS (it appears as `/dev/cu.usbmodem<serial number>` once the seed has been flashed at least once) or `ls /dev/serial/by-id/` on Linux (stable path derived from the USB serial number)
+6. Connect the Daisy Seed via USB and via its debug probe, and run the self-tests:
+   ```sh
+   .venv/bin/daisyhat test selftests
+   ```
+   (in VS Code, the `daisyhat: test (selftests)` task does the same)
+   - `.venv/bin/daisyhat build selftests` builds without running
+   - `.venv/bin/daisyhat clean selftests` removes the test build directories
+   - Troubleshooting flash errors: run with `DAISYHAT_LOG_LEVEL=DEBUG` (full pyOCD logging incl. tracebacks); `Pipe error`s under flash load are typically a bad USB cable, hub or port, and a stuck probe USB handle requires unplugging the probe
+
+## Running tests automatically via github actions
 
 1. Prepare the target github repository by generating a personal access token to be able to register new github actions runners (see [here](docs/github-actions-runner-setup-public-repos.md))
 2. Install Ubuntu Server 20.04 on a Raspberry Pi 4B
-3. Download and execute the setup script (see [here](docs/github-actions-runner-setup-public-repos.md)) 
+3. Download and execute the setup script (see [here](docs/github-actions-runner-setup-public-repos.md))
 4. Connect the Pi to each Daisy Seed board via USB
 5. Connect the Pi to each Daisy Seed board via an STLinkv3 JTAG programmer
 
@@ -136,13 +241,12 @@ Detailed instructions can be found [here](docs/github-actions-runner-setup-publi
 <!-- Project Structure -->
 # Project Structure
 
-- `cmake/` contains cmake functions
-- `docs/` contains documentation and guides
+- `daisyhat/` contains the python package (CLI, build & test orchestration, host-side runner)
+- `src/` contains the C++ library for the device firmware
 - `docker/` contains files to build the github action runner docker image
-- `examples/` contains a usage example with two tests (one succeeds, one fails)
-- `python/` contains the python library for the host computer / test runner
+- `examples/` contains a usage example (a test root with two tests; one succeeds, one fails)
 - `scripts/` contains scripts to setup and run a daisyHat test runner
-- `src/` contains C++ library for the device firmware
+- `docs/` contains documentation and guides
 
 <!-- CONTRIBUTING -->
 # Contributing

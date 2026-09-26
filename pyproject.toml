@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "daisyhat"
+version = "0.1.0"
+description = "daisyHat: test and build orchestration for Daisy Seed firmware"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "pyserial>=3.0",
+    "pyocd>=0.45,<1.0",
+]
+
+[project.scripts]
+daisyhat = "daisyhat.cli:main"
+
+[tool.setuptools]
+packages = ["daisyhat"]

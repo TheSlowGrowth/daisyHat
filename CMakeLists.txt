@@ -1,13 +1,11 @@
-project(libDaisyHat)
-cmake_minimum_required(VERSION 3.19)
+# daisyHat is included as a subdirectory of the test project
+# (add_subdirectory(${DAISYHAT_DIR} daisyhat)) and provides the
+# daisyHat library target. It intentionally does not call project()
+# so it can be included without interfering with the parent project.
 
 set(TARGET daisyHat)
-set(DAISYHAT_PYTHON_MODULE_DIR ${CMAKE_CURRENT_LIST_DIR}/python CACHE STRING "Path to the daisyHat python module directory")
 
-include(CTest)
-find_package(PythonInterp 3.8.5 REQUIRED)
-
-add_library(${TARGET} 
+add_library(${TARGET} STATIC
     src/daisyHat.h
     src/daisyHat.cpp
     src/SerialComms.h
@@ -45,7 +43,3 @@ target_compile_options(${TARGET}
     -Wno-stringop-overflow
     $<$<COMPILE_LANGUAGE:CXX>:-Wno-register>
 )
-
-include(cmake/daisyhat_add_custom_test.cmake)
-include(cmake/daisyhat_add_firmware.cmake)
-include(cmake/daisyhat_add_test.cmake)
