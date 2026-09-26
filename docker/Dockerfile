@@ -22,6 +22,10 @@ RUN apt-get install -y apt-transport-https ca-certificates gnupg software-proper
 RUN apt-get install -y make cmake python3 openocd git python3-pip
 # install python modules
 RUN pip3 install pyserial
+# install the daisyhat python package
+COPY pyproject.toml /home/actions/daisyhat/
+COPY daisyhat/ /home/actions/daisyhat/daisyhat/
+RUN pip3 install /home/actions/daisyhat
 #install gcc-arm-none-eabi locally
 RUN cd /home/actions && mkdir dev && cd dev && wget ${GCC_ARM_NONE_EABI_DOWNLOAD} && tar xf ./${GCC_ARM_NONE_EABI_FILE}
 

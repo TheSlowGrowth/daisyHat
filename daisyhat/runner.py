@@ -1,11 +1,6 @@
 """ Runner logic for firmware tests: flash firmware images to Daisy Seeds,
-    start the test execution and collect the results.
-
-    This is the library version of the former `python/runners/daisyHatTestRunner.py`
-    script and must keep its behavior: flash -> start -> collect.
+    start the test execution and collect the results (flash -> start -> collect).
 """
-
-import sys
 
 from . import ConfigFile
 from . import DaisySeed
@@ -52,21 +47,3 @@ def run_firmware_test(firmware, config_file_path):
         print(" ... '{}': {}".format(seed.identifier, result_str))
         result = result and seed_result
     return result
-
-
-def main(argv):
-    """ Entry point that keeps the old daisyHatTestRunner.py script interface:
-
-            daisyHatTestRunner.py --firmware <elf> <seedId> [--firmware ...] --config <config>
-    """
-    import argparse
-
-    parser = argparse.ArgumentParser(prog="daisyHatTestRunner")
-    parser.add_argument("--firmware", action="append", type=str, nargs=2,
-                        help="The firmware *.elf file to upload, followed by the seed id to upload to")
-    parser.add_argument("--config", action="store", type=str,
-                        help="The daisyHat config file")
-    args = parser.parse_args(argv)
-
-    result = run_firmware_test(args.firmware, args.config)
-    sys.exit(0 if result else 1)

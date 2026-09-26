@@ -6,6 +6,7 @@ A project level configuration file, usually named `daisyHat.config.json`, descri
 
 ```json
 {
+    "version": 1,
     "seeds": {
         "Alice": {
             "openOcdCfg": "interface/stlink.cfg",
@@ -21,11 +22,11 @@ A project level configuration file, usually named `daisyHat.config.json`, descri
 
 ## Specifying the config file path
 
-By default, the config file is expected to be named `${projectRoot}/daisyHat.config.json`. 
-You can specify a different path by setting the `DAISYHAT_CONFIG_FILE` CMake variable.
+By default, the config file is expected to be named `<testRoot>/daisyHat.config.json`.
+You can specify a different path with the `--config` option of the `daisyhat` CLI:
 
 ```
-set(DAISYHAT_CONFIG_FILE myCustomFile.json)
+daisyhat test <testRoot> --config myCustomFile.json
 ```
 
 The host-side python library accepts overriding the configuration file path by setting the `DAISYHAT_CONFIG_FILE_OVERRIDE` environment variable.
