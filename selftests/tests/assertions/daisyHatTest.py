@@ -30,7 +30,7 @@ EXPECTED_FAILURES = [
      [r"^Where$", r"^     f1 = '1',$", r"^     f2 = '1\.5',$", r"^     delta = '0\.1'$"]),
     (rf"FAILURE: Expected sa == sb {AT_SOURCE}",
      [r"^Where$", r"^     sa = 'a',$", r"^     sb = 'b'$"]),
-    (rf"FAILURE: Expected a == c == false {AT_SOURCE}", []),
+    (rf"FAILURE: Expected a == c == true {AT_SOURCE}", []),
     (rf"FAILURE: Expected a == b == false {AT_SOURCE}", []),
 ]
 
