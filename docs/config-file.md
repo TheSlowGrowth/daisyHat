@@ -39,6 +39,21 @@ You can specify a different path with the `--config` option of the `daisyhat` CL
 daisyhat test <testRoot> --config myCustomFile.json
 ```
 
+### Local development config
+
+Machine specific settings (local serial device paths, local programmer
+interfaces) belong in a local config file, e.g.
+`<testRoot>/daisyHat.config.local.json` (gitignored), while the committed
+config keeps the CI/runner setup. Point the CLI to it with the
+`DAISYHAT_CONFIG_FILE_OVERRIDE` environment variable — typically via the
+`.env` file in the directory the CLI is started from (loaded automatically):
+
+```
+DAISYHAT_CONFIG_FILE_OVERRIDE=selftests/daisyHat.config.local.json
+```
+
+The path is resolved relative to the directory the CLI was started in.
+
 The host-side python library accepts overriding the configuration file path by setting the `DAISYHAT_CONFIG_FILE_OVERRIDE` environment variable.
 You can use this while running the tests locally, where the device paths will likely be different from the CI encironment.
 

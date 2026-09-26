@@ -3,5 +3,6 @@ build
 __pycache__egg-info/
 *.egg-info/
 .env
+daisyHat.config.local.json
 .build/
 .venv/
