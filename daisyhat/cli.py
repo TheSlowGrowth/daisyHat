@@ -8,7 +8,10 @@ Final shape (see docs/python-orchestration-migration.md):
 """
 
 import argparse
+import os
 import sys
+
+from . import envfile
 
 
 def _not_implemented(args):
@@ -47,6 +50,8 @@ def build_parser():
 
 
 def main(argv=None):
+    # load local development environment (.env is gitignored; see .env.example)
+    envfile.load_env_file(os.path.join(os.getcwd(), ".env"))
     parser = build_parser()
     args = parser.parse_args(argv)
     args.func(args)

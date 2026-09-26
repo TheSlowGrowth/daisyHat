@@ -1,5 +1,7 @@
-project(libDaisyHat)
-cmake_minimum_required(VERSION 3.19)
+# daisyHat is included as a subdirectory of the test project
+# (add_subdirectory(${DAISYHAT_DIR} daisyhat)) and provides the
+# daisyHat library target. It intentionally does not call project()
+# so it can be included without interfering with the parent project.
 
 set(TARGET daisyHat)
 
