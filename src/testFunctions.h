@@ -116,5 +116,5 @@ namespace daisyhat
         daisyhat::internal::AssertThreeVarWithStringOutput(a_, b_, maxDelta_, (diff_ > 0 ? diff_ : -diff_) <= maxDelta_, "FAILURE: Expected abs(" #a " - " #b ") <= " #maxDelta " at " __FILE__ ":" TOSTRING(__LINE__), #a, #b, #maxDelta); \
     }
 #define EXPECT_TRUE(condition) daisyhat::internal::Assert(condition, "FAILURE: Expected " #condition " == true at " __FILE__ ":" TOSTRING(__LINE__))
-#define EXPECT_FALSE(condition) daisyhat::internal::Assert(!condition, "FAILURE: Expected " #condition " == false at " __FILE__ ":" TOSTRING(__LINE__))
+#define EXPECT_FALSE(condition) daisyhat::internal::Assert(!(condition), "FAILURE: Expected " #condition " == false at " __FILE__ ":" TOSTRING(__LINE__))
 } // namespace daisyhat
