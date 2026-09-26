@@ -3,7 +3,9 @@
     "defaultSeed": "Alice",
     "seeds": {
         "Alice": {
-            "openOcdCfg": "interface/stlink.cfg",
+            "flash": {
+                "backend": "pyocd"
+            },
             "serialDevice": "/dev/serial/by-id/usb-Electrosmith_Daisy_Seed_Built_In_346135793139-if00"
         }
     }

@@ -1,19 +1,19 @@
-import os
 import re
-import subprocess
 import time
 
 from . import serial_device
 from . import config_file
-from .errors import DaisyHatError
+from . import flash
+
 
 class DaisySeed:
     """ Represents a Daisy Seed board and provides functions for test execution """
 
     def __init__(self, identifier):
         self._identifier = identifier
-        self._openocd_cfg = config_file.daisyhat_config["seeds"][identifier]["openOcdCfg"]
-        self._serial_device_path = config_file.daisyhat_config["seeds"][identifier]["serialDevice"]
+        seed_cfg = config_file.daisyhat_config["seeds"][identifier]
+        self._flash_backend = flash.make_flash_backend(seed_cfg, seed_name=identifier)
+        self._serial_device_path = seed_cfg["serialDevice"]
         self.serial_connection = None
         self.lines = []  # raw lines received since the serial connection was opened
 
@@ -22,30 +22,16 @@ class DaisySeed:
         return self._identifier
 
     @property
-    def openocd_cfg(self):
-        return self._openocd_cfg
-
-    @property
     def serial_device_path(self):
         return self._serial_device_path
 
     def upload_firmware_elf_and_start_serial(self, elf_path):
         """
-        Uploads the given firmware ELF to the seed using OpenOCD
-        and opens a connection to the serial port that was configured for the seed
+        Uploads the given firmware ELF to the seed using the flash backend
+        configured for the seed and opens a connection to the serial port
+        that was configured for the seed
         """
-        openocd_args = [
-            "openocd",
-            "-s", "/usr/local/share/openocd/scripts",
-            "-f", self.openocd_cfg,
-            "-f", "target/stm32h7x.cfg",
-            "-c", f'program "{elf_path}" verify reset exit'
-        ]
-        print("command:")
-        print(openocd_args)
-        result = subprocess.run(openocd_args)
-        if result.returncode != 0:
-            raise DaisyHatError(f"OpenOCD failed to flash '{elf_path}' to seed '{self._identifier}' (return code {result.returncode})")
+        self._flash_backend.flash(elf_path)
         self.open_serial()
 
     def open_serial(self):

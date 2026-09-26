@@ -1,6 +1,7 @@
 import os
 
 from . import config_file
+from . import flash
 from .errors import DaisyHatError
 
 
@@ -99,4 +100,8 @@ def load_suite_config(root, config_path=None):
             "daisyHat config file '{}' defines {} seeds and must therefore "
             "name a 'defaultSeed' (one of the configured seeds)".format(
                 config_path, len(config["seeds"])))
+    # validate the flash backend of every seed so that config problems
+    # are reported before anything is run
+    for seed_name in config["seeds"]:
+        flash.make_flash_backend(config["seeds"][seed_name], seed_name=seed_name)
     return config

@@ -18,11 +18,10 @@ RUN apt-get install -y apt-transport-https ca-certificates gnupg software-proper
     && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null \
     && apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main' \
     && apt-get update
-# install build tools
+# install build tools (openocd is only needed for the openocd flash backend; the
+# default pyocd backend is installed with the daisyhat package below)
 RUN apt-get install -y make cmake python3 openocd git python3-pip
-# install python modules
-RUN pip3 install pyserial
-# install the daisyhat python package
+# install the daisyhat python package (brings in its dependencies: pyserial, pyocd)
 COPY pyproject.toml /home/actions/daisyhat/
 COPY daisyhat/ /home/actions/daisyhat/daisyhat/
 RUN pip3 install /home/actions/daisyhat

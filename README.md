@@ -93,7 +93,9 @@ In this repository, `examples/` is a test root containing one test, `test1`.
     "version": 1,
     "seeds": {
         "Alice": {
-            "openOcdCfg": "interface/stlink.cfg",
+            "flash": {
+                "backend": "pyocd"
+            },
             "serialDevice": "/dev/serial/by-id/usb-Electrosmith_Daisy_Seed_Built_In_346135793139-if00"
         }
     }
@@ -141,7 +143,7 @@ daisyhat test <path-to-test-root> [test_name ...]
 daisyhat test examples test1
 ```
 
-Expected output (CMake and openocd output elided):
+Expected output (CMake and flashing output elided):
 
 ```
 INFO: daisyHat config file path: examples/daisyHat.config.json
@@ -155,9 +157,7 @@ Flashing firmware images
 -----------------------------------------------------------------------
 
  ... flashing to 'Alice': 'examples/tests/test1/.build/test1.elf'
-command:
-['openocd', '-s', '/usr/local/share/openocd/scripts', '-f', 'interface/stlink.cfg', '-f', 'target/stm32h7x.cfg', '-c', 'program "examples/tests/test1/.build/test1.elf" verify reset exit']
-<openocd flashing output>
+<flashing progress output>
 
 -----------------------------------------------------------------------
 Starting test execution
@@ -198,7 +198,7 @@ Summary:
 
 ## Running the tests locally
 
-1. Setup your toolchain: _CMake_, _make_, _gcc-arm-none-eabi_ (as `TOOLCHAIN_PREFIX`), _openocd_ and _Python3_
+1. Setup your toolchain: _CMake_, _make_, _gcc-arm-none-eabi_ (as `TOOLCHAIN_PREFIX`) and _Python3_ (_openocd_ is only required if your config uses the `openocd` flash backend)
 2. Install the daisyHat python package: `pip install <path-to-daisyHat>`
 3. Connect each Daisy Seed board via USB and via an STLink JTAG programmer
 4. Build and run the tests: `daisyhat test <path-to-test-root>`
