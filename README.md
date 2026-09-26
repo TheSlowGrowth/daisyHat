@@ -54,13 +54,51 @@
 **WORK IN PROGRESS**
 This project is in very early stages and not production ready. Don't expect everything to be plug-and-play yet. Please help out where you can!
 
+# Core concepts
+
+- Tests live in a directory (the **test root**), typically a git repository, that contains a `tests/` subdirectory and a `daisyHat.config.json` file describing the hardware setup
+- Each test is a subdirectory of `tests/` that contains a `CMakeLists.txt` making it a standalone CMake project
+- libDaisy and daisyHat are available to the test projects via the environment variables `LIBDAISY_DIR` and `DAISYHAT_DIR` (e.g. pointing at checkouts / submodules inside the repository)
+- The `daisyhat` python package builds each test with CMake and runs the firmware on the hardware
+- GitHub actions integration is realised with an ephemeral test runner based on a docker image that can easily be deployed to a Raspberry Pi and is safe to use for public repositories
+
+
+The layout of a test root:
+
+```
+<test-root>/
+├── daisyHat.config.json   # hardware setup (seed identifiers, ...)
+└── tests/
+    ├── test1/            # a test: standalone CMake project
+    │   ├── CMakeLists.txt
+    │   └── main.cpp
+    └── test2/
+        └── ...
+```
+
 <!-- Example test -->
 # Example test
 
 The simplest test consists of a single firmware image that performs the entire test on a Daisy Seed.
 View [more complex example code here](examples/).
 
-main.cpp
+In this repository, `examples/` is a test root containing one test, `test1`.
+
+`examples/daisyHat.config.json` describes the hardware setup. The example defines one Daisy Seed with the identifier `Alice`:
+
+```json
+{
+    "version": 1,
+    "seeds": {
+        "Alice": {
+            "openOcdCfg": "interface/stlink.cfg",
+            "serialDevice": "/dev/serial/by-id/usb-Electrosmith_Daisy_Seed_Built_In_346135793139-if00"
+        }
+    }
+}
+```
+
+`examples/tests/test1/main.cpp`:
 ```cpp
 #include <daisy_seed.h>
 #include <daisyHat.h>
@@ -79,7 +117,7 @@ int main()
     daisyhat::FinishTest();
 }
 ```
-CMakeLists.txt
+`examples/tests/test1/CMakeLists.txt`:
 ```cmake
 cmake_minimum_required(VERSION 3.20)
 project (test1)
@@ -94,15 +132,56 @@ add_subdirectory(${DAISYHAT_DIR} daisyhat)
 target_link_libraries(${FIRMWARE_NAME} PRIVATE daisyHat)
 ```
 
+Run the test from the test root's parent directory (here: the repository root, where the `.env` file is). The first argument is the path to the test root folder (`examples` here — for your own projects it is typically `.` for the repository root), the second argument names the test to run (omit it to run all discovered tests):
+
+```
+daisyhat test <path-to-test-root> [test_name ...]
+daisyhat test examples test1
+```
+
+Expected output (CMake and openocd output elided):
+
+```
+INFO: daisyHat config file path: examples/daisyHat.config.json
+ ... configuring 'test1'
+ ... building 'test1'
+
+========== test 'test1' ==========
+
+-----------------------------------------------------------------------
+Flashing firmware images
+-----------------------------------------------------------------------
+
+ ... flashing to 'Alice': 'examples/tests/test1/.build/test1.elf'
+command:
+['openocd', '-s', '/usr/local/share/openocd/scripts', '-f', 'interface/stlink.cfg', '-f', 'target/stm32h7x.cfg', '-c', 'program "examples/tests/test1/.build/test1.elf" verify reset exit']
+<openocd flashing output>
+
+-----------------------------------------------------------------------
+Starting test execution
+-----------------------------------------------------------------------
+
+ ... 'Alice'
+
+-----------------------------------------------------------------------
+Collecting test results
+-----------------------------------------------------------------------
+
+ ... 'Alice': Passed
+
+Summary:
+  test1: PASSED
+```
+
+A failing test prints `Failed` in the result collection and a non-zero exit code:
+
+```
+Summary:
+  test2: FAILED
+```
+
 <!-- Getting Started -->
 # Getting started
-
-Core concepts:
-- Tests live in a directory (the **test root**), typically a git repository, that contains a `tests/` subdirectory and a `daisyHat.config.json` file describing the hardware setup
-- Each test is a subdirectory of `tests/` that contains a `CMakeLists.txt` making it a standalone CMake project
-- libDaisy and daisyHat are available to the test projects via the environment variables `LIBDAISY_DIR` and `DAISYHAT_DIR` (e.g. pointing at checkouts / submodules inside the repository)
-- The `daisyhat` python package builds each test with CMake and runs the firmware on the hardware
-- GitHub actions integration is realised with an ephemeral test runner based on a docker image that can easily be deployed to a Raspberry Pi and is safe to use for public repositories
 
 ## Setting up a test project
 
