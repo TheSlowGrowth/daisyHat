@@ -2,12 +2,8 @@ project(libDaisyHat)
 cmake_minimum_required(VERSION 3.19)
 
 set(TARGET daisyHat)
-set(DAISYHAT_PYTHON_MODULE_DIR ${CMAKE_CURRENT_LIST_DIR}/python CACHE STRING "Path to the daisyHat python module directory")
 
-include(CTest)
-find_package(PythonInterp 3.8.5 REQUIRED)
-
-add_library(${TARGET} 
+add_library(${TARGET} STATIC
     src/daisyHat.h
     src/daisyHat.cpp
     src/SerialComms.h
@@ -45,7 +41,3 @@ target_compile_options(${TARGET}
     -Wno-stringop-overflow
     $<$<COMPILE_LANGUAGE:CXX>:-Wno-register>
 )
-
-include(cmake/daisyhat_add_custom_test.cmake)
-include(cmake/daisyhat_add_firmware.cmake)
-include(cmake/daisyhat_add_test.cmake)
