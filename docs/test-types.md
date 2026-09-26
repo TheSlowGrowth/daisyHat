@@ -2,7 +2,9 @@
 
 A test is a subdirectory of `tests/` (inside a test root) that contains a
 `CMakeLists.txt` making it a standalone CMake project. An optional
-`daisyHatTest.py` file next to it provides host-side orchestration hooks.
+`daisyHatTest.py` file next to it will provide host-side orchestration hooks
+(setup/teardown/run, image-to-seed mapping, host-only tests); this is not
+implemented yet, see [Tests with a custom test runner](#tests-with-a-custom-test-runner).
 
 ## Single/Multi Seed tests
 
@@ -11,9 +13,9 @@ A test is a subdirectory of `tests/` (inside a test root) that contains a
 - The results are collected from the Seeds. The test succeeds only if all of
   the Seeds report success.
 - Default flow: the test's CMake project registers exactly one firmware image.
-  `daisyhat test` flashes it to every seed configured in the
-  `daisyHat.config.json` at the test root, starts the test execution on all of
-  them and collects the results.
+  `daisyhat test` builds the CMake project, flashes the firmware image to every
+  seed configured in the `daisyHat.config.json` at the test root, starts the
+  test execution on all of them and collects the results.
 
 ### Example
 
@@ -59,20 +61,22 @@ target_link_libraries(${FIRMWARE_NAME} PRIVATE daisyHat)
   can involve external measurement equipment or test fixtures.
 - The script's return value determines if the test failed or succeeded.
 
-This form is realised by the upcoming `daisyHatTest.py` per-test hooks
-(setup/teardown/run, image-to-seed mapping, host-only tests). Until then, you
-can orchestrate from a host-side script using the `daisyhat` python library
-directly:
+This form is realised by the upcoming `daisyHatTest.py` per-test hooks.
+Until then, you can orchestrate the test manually from a host-side script
+using the `daisyhat` python library directly (this is essentially what the
+`daisyhat test` CLI does for the default flow):
 
 ```python
 import sys
 import daisyhat
 
-daisyhat.read_config_file(config_path)
+# read the suite config file at the test root (creates DaisySeed objects from it)
+daisyhat.read_config_file("daisyHat.config.json")
+
 # create a DaisySeed object to interact with the seed "Alice" (as configured in the config file)
 seed = daisyhat.DaisySeed("Alice")
-# flash the firmware image
-seed.upload_firmware_elf_and_start_serial(elf_path)
+# flash the firmware image and open the serial connection
+seed.upload_firmware_elf_and_start_serial(".build/mySeedTest.elf")
 # you could setup a test fixture here
 # start the test execution on the seed
 seed.start_test_execution()
