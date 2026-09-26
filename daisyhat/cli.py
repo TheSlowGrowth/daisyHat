@@ -6,6 +6,7 @@
 """
 
 import argparse
+import logging
 import os
 import subprocess
 import sys
@@ -135,6 +136,12 @@ def cmd_test(args):
 def main(argv=None):
     # local development environment file (gitignored; see .env.example)
     envfile.load_env_file(os.path.join(os.getcwd(), ".env"))
+    # optional logging for the pyocd flash backend, e.g. DAISYHAT_LOG_LEVEL=DEBUG
+    log_level = os.getenv("DAISYHAT_LOG_LEVEL")
+    if log_level:
+        logging.basicConfig(
+            level=log_level, format="%(levelname)s:%(name)s:%(message)s")
+        logging.getLogger("pyocd").setLevel(log_level)
     parser = build_parser()
     args = parser.parse_args(argv)
     try:

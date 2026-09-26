@@ -15,6 +15,10 @@ Backends:
   pyOCD - use the openocd backend for those.
 
 - openocd: spawns an OpenOCD process. Requires openocd on PATH.
+
+Diagnostics: set DAISYHAT_LOG_LEVEL (e.g. 'DEBUG') to enable logging of the
+pyocd backend. Without it, pyOCD's error records (which carry tracebacks) are
+only reported as bare lines by Python's last-resort logging handler.
 """
 
 import subprocess
@@ -60,7 +64,8 @@ class PyOcdFlashBackend(FlashBackend):
                     "no debug probe found matching '{}' (use 'pyocd list' to show "
                     "connected probes and set 'board' in the seed config accordingly)"
                     .format(self._board_match or "any"))
-            session = Session(probe, options={"target_override": self.DAISY_TARGET})
+            session = Session(probe, options={"target_override": self.DAISY_TARGET,
+                                              "debug.traceback": True})
             try:
                 with session:
                     FileProgrammer(session).program(elf_path)
@@ -68,6 +73,16 @@ class PyOcdFlashBackend(FlashBackend):
                 return
             except Exception as e:
                 last_error = e
+                # a stuck USB handle (left behind by a failed disconnect) cannot
+                # be recovered from inside the process - further attempts are
+                # guaranteed to fail with 'Access denied' until the probe is
+                # physically replugged
+                if "Access denied" in str(e):
+                    raise DaisyHatError(
+                        "pyocd failed to flash '{}': {} - the probe's USB handle "
+                        "appears stuck (typically left behind by a failed "
+                        "disconnect); replug the probe's USB cable and try again"
+                        .format(elf_path, e)) from e
                 if attempt < self.MAX_ATTEMPTS:
                     print("flash attempt {} failed ({}), retrying...".format(
                         attempt, e))
