@@ -68,16 +68,16 @@ directly:
 import sys
 import daisyhat
 
-daisyhat.readConfigFile(configPath)
+daisyhat.read_config_file(config_path)
 # create a DaisySeed object to interact with the seed "Alice" (as configured in the config file)
 seed = daisyhat.DaisySeed("Alice")
 # flash the firmware image
-seed.uploadFirmwareElfAndStartSerial(elfPath)
+seed.upload_firmware_elf_and_start_serial(elf_path)
 # you could setup a test fixture here
 # start the test execution on the seed
-seed.startTestExecution()
+seed.start_test_execution()
 # wait for the test to complete
-result = seed.awaitTestResult()
+result = seed.await_test_result()
 
 # return the result to the test environment
 sys.exit(0 if result else 1)

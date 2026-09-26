@@ -1,6 +1,6 @@
 import os
 
-from . import ConfigFile
+from . import config_file
 from .errors import DaisyHatError
 
 
@@ -68,7 +68,7 @@ def load_suite_config(root, config_path=None):
         config API can evolve while older versioned projects keep working.
         An absent version is treated as the oldest supported version.
 
-        :return: the parsed config dict (also loaded into ConfigFile for
+        :return: the parsed config dict (also loaded into the config_file module for
                  the DaisySeed objects)
     """
     if config_path is None:
@@ -77,8 +77,8 @@ def load_suite_config(root, config_path=None):
         raise DaisyHatError(
             "daisyHat config file not found: '{}' (expected at the test root; "
             "use --config to override)".format(config_path))
-    ConfigFile.readConfigFile(config_path)
-    config = ConfigFile.daisyHatConfig
+    config_file.read_config_file(config_path)
+    config = config_file.daisyhat_config
     version = config.get("version", SUPPORTED_CONFIG_VERSION)
     if version != SUPPORTED_CONFIG_VERSION:
         raise DaisyHatError(

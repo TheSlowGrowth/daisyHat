@@ -2,9 +2,9 @@
     start the test execution and collect the results (flash -> start -> collect).
 """
 
-from . import ConfigFile
-from . import DaisySeed
-from . import Tools
+from . import config_file
+from .daisy_seed import DaisySeed
+from . import tools
 
 
 def run_firmware_test(firmware, config_file_path):
@@ -22,27 +22,27 @@ def run_firmware_test(firmware, config_file_path):
                  (a timed-out seed counts as failed)
     """
     # read daisyHat config file (e.g. daisyHat.config.json)
-    ConfigFile.readConfigFile(config_file_path)
+    config_file.read_config_file(config_file_path)
 
     # create DaisySeed object and upload firmware
     seeds = list()
-    Tools.printSmallHeadline("Flashing firmware images")
+    tools.print_small_headline("Flashing firmware images")
     for elf, seed_id in firmware:
         print(" ... flashing to '{}': '{}'".format(seed_id, elf))
         seed = DaisySeed(seed_id)
-        seed.uploadFirmwareElfAndStartSerial(elf)
+        seed.upload_firmware_elf_and_start_serial(elf)
         seeds.append(seed)
 
-    Tools.printSmallHeadline("Starting test execution")
+    tools.print_small_headline("Starting test execution")
     for seed in seeds:
         print(" ... '{}'".format(seed.identifier))
-        seed.startTestExecution()
+        seed.start_test_execution()
 
     # get results from all of the seeds
-    Tools.printSmallHeadline("Collecting test results")
+    tools.print_small_headline("Collecting test results")
     result = True
     for seed in seeds:
-        seed_result = seed.awaitTestResult()
+        seed_result = seed.await_test_result()
         result_str = "Passed" if seed_result else "Failed"
         print(" ... '{}': {}".format(seed.identifier, result_str))
         result = result and seed_result
