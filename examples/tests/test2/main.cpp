@@ -8,7 +8,7 @@ int main()
     seed.Configure();
     seed.Init();
 
-    daisyhat::Init(seed, "test2");
+    daisyhat::Init(seed, "test2", "Alice");
     int a = 1;
     int b = 2;
     EXPECT_EQ(a, b);

@@ -39,8 +39,16 @@ class DaisySeed:
         self.serial_connection = serial_device.SerialDevice(self._identifier, self.serial_device_path)
         self.lines = []
 
-    def start_test_execution(self):
-        """ Starts the test execution by sending the `start_test` signal """
+    def start_test_execution(self, timeout_ms=30000):
+        """ Starts the test execution by sending the `start_test` signal.
+
+        First awaits the device's start handshake (`ready:<identifier>`), which
+        guarantees that the serial port really belongs to this device and that
+        its firmware has booted.
+        :param timeout_ms: timeout in ms for the handshake; an Exception is
+                           thrown if the handshake does not arrive in time
+        """
+        self.serial_connection.await_signal("ready:" + self._identifier, timeout_ms)
         self.serial_connection.send_signal("start_test")
 
     def await_test_result(self, timeout_ms=10000):

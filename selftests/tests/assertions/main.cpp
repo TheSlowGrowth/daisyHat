@@ -8,7 +8,7 @@ int main()
     seed.Configure();
     seed.Init();
 
-    daisyhat::Init(seed, "assertions");
+    daisyhat::Init(seed, "assertions", "Alice");
 
     int a = 1;
     int b = 1;

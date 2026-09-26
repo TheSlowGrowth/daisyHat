@@ -15,7 +15,7 @@ namespace daisyhat
     std::aligned_union<0, UsbSerialComms /* add more types here ...*/>::type serialCommsStorage;
     SerialComms* serialComms = nullptr;
 
-    void Init(daisy::DaisySeed& _seed, const char* testName, SerialPort serialPort)
+    void Init(daisy::DaisySeed& _seed, const char* testName, const char* deviceName, SerialPort serialPort)
     {
         startTime = daisy::System::GetNow();
         numFailedAssertions = 0;
@@ -40,8 +40,17 @@ namespace daisyhat
 
         // Init signals
         signals::internal::Init(*serialComms);
-        // await test start
-        signals::AwaitHostSignal(signals::ids::host_signals::startTest);
+
+        // start handshake: announce this device to the host (repeated until
+        // start_test arrives, so the host can match the serial port to the
+        // device, regardless of which of the two booted/connected first)
+        daisy::FixedCapStr<40> readySignal = "ready:";
+        readySignal.Append(deviceName);
+        while (!signals::WasHostSignalReceived(signals::ids::host_signals::startTest))
+        {
+            signals::SendSignal(signals::Identifier(readySignal));
+            _seed.DelayMs(500);
+        }
 
         PrintLine("=== Starting Test ===");
         Print("> Name: ");
