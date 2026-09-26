@@ -15,6 +15,7 @@ class DaisySeed:
         self._openocd_cfg = config_file.daisyhat_config["seeds"][identifier]["openOcdCfg"]
         self._serial_device_path = config_file.daisyhat_config["seeds"][identifier]["serialDevice"]
         self.serial_connection = None
+        self.lines = []  # raw lines received since the serial connection was opened
 
     @property
     def identifier(self):
@@ -50,6 +51,7 @@ class DaisySeed:
     def open_serial(self):
         """Opens the serial connection configured for the seed (without flashing)."""
         self.serial_connection = serial_device.SerialDevice(self._identifier, self.serial_device_path)
+        self.lines = []
 
     def start_test_execution(self):
         """ Starts the test execution by sending the `start_test` signal """
@@ -69,6 +71,8 @@ class DaisySeed:
             # wait for a line on the serial connection
             line = self.serial_connection.get_data_received()
             if line:
+                for received_line in line.splitlines():
+                    self.lines.append(received_line)
                 if re.search(r"> testResult = SUCCESS", line):
                     return True
                 elif re.search(r"> testResult = FAILURE", line):
