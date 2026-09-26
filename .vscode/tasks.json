@@ -36,6 +36,48 @@
             },
             "group": "build",
             "problemMatcher": []
+        },
+        {
+            "label": "daisyhat: build (libDaisyTests)",
+            "detail": "Build and run the on-device assertion self-tests (requires the Daisy Seed and its debug probe from the local config)",
+            "type": "shell",
+            "command": "${workspaceFolder}/.venv/bin/daisyhat",
+            "args": ["build", "libDaisyTests"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "daisyhat: test (libDaisyTests)",
+            "detail": "Build and run the on-device assertion self-tests (requires the Daisy Seed and its debug probe from the local config)",
+            "type": "shell",
+            "command": "${workspaceFolder}/.venv/bin/daisyhat",
+            "args": ["test", "libDaisyTests"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "daisyhat: clean (libDaisyTests)",
+            "detail": "Remove the build directories of the self-tests",
+            "type": "shell",
+            "command": "${workspaceFolder}/.venv/bin/daisyhat",
+            "args": ["clean", "libDaisyTests"],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }

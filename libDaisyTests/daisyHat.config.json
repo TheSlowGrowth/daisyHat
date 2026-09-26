@@ -1,0 +1,20 @@
+{
+    "version": 1,
+    "defaultSeed": "Alice",
+    "seeds": {
+        "Alice": {
+            "flash": {
+                "backend": "pyocd",
+                "board": "003B004D3438510C34313939"
+            },
+            "serialDevice": "/dev/cu.usbmodem3780346532301"
+        },
+        "Bob": {
+            "flash": {
+                "backend": "openocd",
+                "interfaceCfg": "interface/ftdi/olimex-arm-usb-tiny-h.cfg"
+            },
+            "serialDevice": "/dev/cu.usbmodemTO_BE_DETERMINED_AFTER_FIRST_FLASH"
+        }
+    }
+}
