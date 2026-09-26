@@ -45,6 +45,10 @@ class DaisySeed:
         result = subprocess.run(openocd_args)
         if result.returncode != 0:
             raise DaisyHatError(f"OpenOCD failed to flash '{elf_path}' to seed '{self._identifier}' (return code {result.returncode})")
+        self.open_serial()
+
+    def open_serial(self):
+        """Opens the serial connection configured for the seed (without flashing)."""
         self.serial_connection = serial_device.SerialDevice(self._identifier, self.serial_device_path)
 
     def start_test_execution(self):

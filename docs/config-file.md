@@ -2,11 +2,21 @@
 
 A project level configuration file, usually named `daisyHat.config.json`, describes the hardware setup.
 
+- `version` – the config file format version
+- `defaultSeed` – the identifier of the seed that the default test flow (no
+  `daisyHatTest.py`) flashes and runs the firmware on. Must be one of the
+  configured seeds. Required if the config defines more than one seed; for a
+  single seed it defaults to that seed.
+- `seeds` – the configured Daisy Seeds, keyed by identifier:
+  - `openOcdCfg` – the OpenOCD configuration to use for flashing
+  - `serialDevice` – the serial device path of the seed's USB serial interface
+
 ## Example
 
 ```json
 {
     "version": 1,
+    "defaultSeed": "Alice",
     "seeds": {
         "Alice": {
             "openOcdCfg": "interface/stlink.cfg",

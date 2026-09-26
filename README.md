@@ -60,6 +60,7 @@ This project is in very early stages and not production ready. Don't expect ever
 - Each test is a subdirectory of `tests/` that contains a `CMakeLists.txt` making it a standalone CMake project
 - libDaisy and daisyHat are available to the test projects via the environment variables `LIBDAISY_DIR` and `DAISYHAT_DIR` (e.g. pointing at checkouts / submodules inside the repository)
 - The `daisyhat` python package builds each test with CMake and runs the firmware on the hardware
+- A test can optionally provide a `daisyHatTest.py` with host-side orchestration hooks (flash firmware to specific seeds, multi-firmware tests, host-only tests)
 - GitHub actions integration is realised with an ephemeral test runner based on a docker image that can easily be deployed to a Raspberry Pi and is safe to use for public repositories
 
 
@@ -71,6 +72,7 @@ The layout of a test root:
 └── tests/
     ├── test1/            # a test: standalone CMake project
     │   ├── CMakeLists.txt
+    │   ├── daisyHatTest.py   # (optional) host-side orchestration hooks
     │   └── main.cpp
     └── test2/
         └── ...
@@ -203,7 +205,6 @@ Summary:
    - `daisyhat build <path-to-test-root>` builds without running
    - `daisyhat clean <path-to-test-root>` removes the test build directories
    - `daisyhat test <path-to-test-root> --list` shows the discovered tests
-5. _Future addition_: Host-side orchestration hooks per test (`daisyHatTest.py`)
 
 ## Running tests automatically via github actions
 

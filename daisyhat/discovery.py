@@ -52,13 +52,15 @@ def select_tests(tests, names):
 
 def firmware_images(test_dir):
     """ Returns the firmware images (*.elf) of a test, by scanning its build
-        directory (.build) at the upstream default location. """
+        directory (.build) at the upstream default location.
+
+        :return: dict of image name (filename without .elf) -> full path """
     build_dir = os.path.join(test_dir, ".build")
     if not os.path.isdir(build_dir):
-        return []
-    return [os.path.join(build_dir, name)
+        return {}
+    return {name[:-len(".elf")]: os.path.join(build_dir, name)
             for name in sorted(os.listdir(build_dir))
-            if name.endswith(".elf")]
+            if name.endswith(".elf")}
 
 
 def load_suite_config(root, config_path=None):
@@ -87,4 +89,14 @@ def load_suite_config(root, config_path=None):
     if not config.get("seeds"):
         raise DaisyHatError(
             "daisyHat config file '{}' does not define any seeds".format(config_path))
+    default_seed = config.get("defaultSeed")
+    if default_seed is not None and default_seed not in config["seeds"]:
+        raise DaisyHatError(
+            "daisyHat config file '{}': 'defaultSeed' ('{}') must be one of "
+            "the configured seeds".format(config_path, default_seed))
+    if default_seed is None and len(config["seeds"]) > 1:
+        raise DaisyHatError(
+            "daisyHat config file '{}' defines {} seeds and must therefore "
+            "name a 'defaultSeed' (one of the configured seeds)".format(
+                config_path, len(config["seeds"])))
     return config

@@ -13,7 +13,7 @@ import sys
 from . import build
 from . import discovery
 from . import envfile
-from . import runner
+from . import hooks
 from .errors import DaisyHatError
 
 
@@ -54,7 +54,7 @@ def build_parser():
 def _print_tests(root, tests):
     print("Tests in '{}':".format(os.path.join(root, "tests")))
     for name, test_dir in tests.items():
-        images = [os.path.basename(p) for p in discovery.firmware_images(test_dir)]
+        images = [os.path.basename(p) for p in discovery.firmware_images(test_dir).values()]
         print("  {}  ({})".format(name, ", ".join(images) if images else "no firmware image yet"))
 
 
@@ -103,10 +103,7 @@ def cmd_test(args):
         _print_tests(args.root, tests)
         return
     tests = discovery.select_tests(tests, args.test_names)
-    config = discovery.load_suite_config(args.root, args.config)
-    seeds = sorted(config["seeds"])
-
-    config_path = args.config or os.path.join(args.root, "daisyHat.config.json")
+    discovery.load_suite_config(args.root, args.config)
 
     if not args.no_build:
         libdaisy_dir, toolchain_prefix, daisyhat_dir = _prepare_build_env()
@@ -118,19 +115,8 @@ def cmd_test(args):
         print()
         print("========== test '{}' ==========".format(name))
         images = discovery.firmware_images(test_dir)
-        if not images:
-            raise DaisyHatError(
-                "no firmware image (*.elf) found for test '{}' in '{}' "
-                "(build the test first, or omit --no-build)".format(
-                    name, os.path.join(test_dir, ".build")))
-        if len(images) > 1:
-            raise DaisyHatError(
-                "test '{}' has multiple firmware images ({}); "
-                "image-to-seed mapping is not supported yet".format(
-                    name, ", ".join(os.path.basename(p) for p in images)))
-        firmware_pairs = [(images[0], seed) for seed in seeds]
         try:
-            results[name] = runner.run_firmware_test(firmware_pairs, config_path)
+            results[name] = hooks.run_test(name, test_dir, images)
         except (subprocess.CalledProcessError, OSError):
             raise DaisyHatError(
                 "test '{}' failed to execute (flashing or serial error, see output above)".format(
