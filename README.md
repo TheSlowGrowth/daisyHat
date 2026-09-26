@@ -198,13 +198,35 @@ Summary:
 
 ## Running the tests locally
 
-1. Setup your toolchain: _CMake_, _make_, _gcc-arm-none-eabi_ (as `TOOLCHAIN_PREFIX`) and _Python3_ (_openocd_ is only required if your config uses the `openocd` flash backend)
+1. Setup your toolchain: _CMake_, _make_, _gcc-arm-none-eabi_ (as `TOOLCHAIN_PREFIX`) and _Python3_ with pyocd (_openocd_ is only required if your config uses the `openocd` flash backend)
 2. Install the daisyHat python package: `pip install <path-to-daisyHat>`
 3. Connect each Daisy Seed board via USB and via an STLink JTAG programmer
 4. Build and run the tests: `daisyhat test <path-to-test-root>`
    - `daisyhat build <path-to-test-root>` builds without running
    - `daisyhat clean <path-to-test-root>` removes the test build directories
    - `daisyhat test <path-to-test-root> --list` shows the discovered tests
+
+## Developing daisyHat locally
+
+How to work on the daisyHat repository itself, testing it against real hardware with the self-tests in [`selftests/`](selftests/).
+
+1. Create a local python venv and install the package:
+   ```sh
+   python3 -m venv .venv
+   .venv/bin/pip install -e .
+   ```
+2. Create a `.env` file at the repository root from [.env.example](.env.example) and fill in `LIBDAISY_DIR` and `TOOLCHAIN_PREFIX` (the CLI loads `.env` from the working directory automatically; values already set in the environment are not overridden)
+3. Create a local config file `selftests/daisyHat.config.local.json` (gitignored) describing your local hardware — machine specific serial device paths and probe IDs — and point `DAISYHAT_CONFIG_FILE_OVERRIDE` in your `.env` file to it
+4. Find the ID of your USB debug probe: `.venv/bin/pyocd list` shows all connected pyOCD-compatible probes with their unique IDs
+5. Find the serial port path of the Daisy Seed: `ls /dev/cu.*` on macOS (it appears as `/dev/cu.usbmodem<serial number>` once the seed has been flashed at least once) or `ls /dev/serial/by-id/` on Linux (stable path derived from the USB serial number)
+6. Connect the Daisy Seed via USB and via its debug probe, and run the self-tests:
+   ```sh
+   .venv/bin/daisyhat test selftests
+   ```
+   (in VS Code, the `daisyhat: test (selftests)` task does the same)
+   - `.venv/bin/daisyhat build selftests` builds without running
+   - `.venv/bin/daisyhat clean selftests` removes the test build directories
+   - Troubleshooting flash errors: run with `DAISYHAT_LOG_LEVEL=DEBUG` (full pyOCD logging incl. tracebacks); `Pipe error`s under flash load are typically a bad USB cable, hub or port, and a stuck probe USB handle requires unplugging the probe
 
 ## Running tests automatically via github actions
 
