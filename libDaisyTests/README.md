@@ -35,6 +35,8 @@ The seeds are connected directly, with a small series resistor on each wire as p
 | SPI SCK  | D8    | ----    | D8  | master SCK → slave SCK
 | SPI MISO | D9    | ----    | D9  | master MISO → slave MISO
 | SPI MOSI | D10   | ----    | D10 | master MOSI → slave MOSI
+| I2C SCL  | D11   | ----    | D13 | Alice I2C1 SCL → Bob I2C4 SCL (Alice enables internal pull-ups)
+| I2C SDA  | D12   | ----    | D14 | Alice I2C1 SDA → Bob I2C4 SDA (Alice enables internal pull-ups)
 
 Additional wires will be documented here as they are added to the fixture.
 
@@ -43,8 +45,9 @@ Additional wires will be documented here as they are added to the fixture.
 | test            | description                                                        |
 | --------------- | ------------------------------------------------------------------ |
 | `spi_transfer`  | Alice (SPI master) sends a fixed byte sequence to Bob (SPI slave) over the direct SPI connection, once per hardcoded SPI configuration (speed, clock polarity/phase). Bob asserts the received bytes against the same hardcoded sequence. Per round, the host synchronizes the devices via checkpoint holds: Alice is held before sending until Bob confirms he is configured and waiting to receive. |
+| `i2c_transfer`  | Alice (I2C1 master, D11 SCL / D12 SDA, internal pull-ups enabled) and Bob (I2C4 slave, D13 SCL / D14 SDA) exchange fixed byte sequences at each hardcoded speed (100 kHz, 400 kHz). Per direction the host synchronizes the devices via checkpoint holds; Bob's I2C4 has no DMA support (yet), so Bob is always on the blocking APIs while Alice's master side alternates between blocking and DMA. |
 
-> The checkpoint synchronization (`// CHECKPOINT` markers in `tests/spi_transfer/`) uses `daisyhat::Checkpoint` on the device and `DaisySeed.halt_at_checkpoint` / `CheckpointHold.release` on the host, communicating via the usual daisyHat serial signals (`cp:<name>` device→host, `rel:<name>` host→device).
+> The checkpoint synchronization (`// CHECKPOINT` markers in `tests/spi_transfer/` and `tests/i2c_transfer/`) uses `daisyhat::Checkpoint` on the device and `DaisySeed.halt_at_checkpoint` / `CheckpointHold.release` on the host, communicating via the usual daisyHat serial signals (`cp:<name>` device→host, `rel:<name>` host→device).
 
 ## Running
 
