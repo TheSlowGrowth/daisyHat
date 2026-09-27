@@ -26,6 +26,7 @@ def build_test(test_name, test_dir, libdaisy_dir, toolchain_prefix, daisyhat_dir
         "-DCMAKE_C_COMPILER=" + os.path.join(toolchain_prefix, "bin", "arm-none-eabi-gcc"),
         "-DCMAKE_CXX_COMPILER=" + os.path.join(toolchain_prefix, "bin", "arm-none-eabi-g++"),
         "-DCMAKE_EXE_LINKER_FLAGS=--specs=nano.specs --specs=nosys.specs",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
         "-DLIBDAISY_DIR=" + libdaisy_dir,
         "-DDAISYHAT_DIR=" + daisyhat_dir,
     ]

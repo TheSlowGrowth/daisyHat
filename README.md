@@ -206,6 +206,16 @@ Summary:
    - `daisyhat clean <path-to-test-root>` removes the test build directories
    - `daisyhat test <path-to-test-root> --list` shows the discovered tests
 
+### Editor / LSP support
+
+Each test project builds in its own `.build/` directory, so CMake writes one `compile_commands.json` per project. To get a single `compile_commands.json` covering all CMake targets (for clangd, C/C++ IntelliSense, etc.), build the tests first, then merge the per-project files:
+
+```sh
+python3 scripts/aggregate_compile_commands.py
+```
+
+This writes a merged `compile_commands.json` to the repository root (gitignored). Point your editor at it (the repository `.vscode/c_cpp_properties.json` already does).
+
 ## Developing daisyHat locally
 
 How to work on the daisyHat repository itself, testing it against real hardware with the self-tests in [`selftests/`](selftests/).
