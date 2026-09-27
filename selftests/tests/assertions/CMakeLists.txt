@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 project(assertions)
 
+add_compile_options(-Os)
+add_compile_definitions(NDEBUG)
+
 # Firmware target via libDaisy's default build
 set(FIRMWARE_NAME assertions)
 set(FIRMWARE_SOURCES main.cpp)
